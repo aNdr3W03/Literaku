@@ -14,6 +14,24 @@
         android:theme="@style/Theme.Literaku"
         tools:targetApi="31">
         <activity
+            android:name=".BackToolbarActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainToolbarActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PanduanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".KoleksiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RiwayatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PenjelajahActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashScreen"
             android:exported="true">
             <intent-filter>

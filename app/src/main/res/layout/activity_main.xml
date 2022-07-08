@@ -6,14 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <include
+        android:id="@+id/include"
+        layout="@layout/activity_main_toolbar" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="362dp"
         android:orientation="vertical"
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="@+id/include">
 
         <Button
             android:id="@+id/btnPenjelajah"
