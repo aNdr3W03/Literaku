@@ -30,6 +30,11 @@
             android:textAlignment="center"
             android:textColor="@color/primary1"
             android:textSize="24sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvKoleksi"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
