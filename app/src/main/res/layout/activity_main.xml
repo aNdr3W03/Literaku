@@ -6,13 +6,91 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <include
+        android:id="@+id/include"
+        layout="@layout/activity_main_toolbar" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="362dp"
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/include">
+
+        <Button
+            android:id="@+id/btnPenjelajah"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#1977F3"
+            android:fontFamily="@font/poppins_semibold"
+            android:includeFontPadding="false"
+            android:letterSpacing="0"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp"
+            android:text="Penjelajah"
+            android:textAlignment="textStart"
+            android:textAllCaps="false"
+            android:textSize="24sp"
+            app:icon="@drawable/ic_ltk_web_1"
+            app:iconSize="50dp" />
+
+        <Button
+            android:id="@+id/btnRiwayat"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#E11935"
+            android:fontFamily="@font/poppins_semibold"
+            android:includeFontPadding="false"
+            android:letterSpacing="0"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp"
+            android:text="Riwayat"
+            android:textAlignment="textStart"
+            android:textAllCaps="false"
+            android:textSize="24sp"
+            app:icon="@drawable/ic_ltk_history_1"
+            app:iconSize="50dp" />
+
+        <Button
+            android:id="@+id/btnKoleksi"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#008675"
+            android:fontFamily="@font/poppins_semibold"
+            android:includeFontPadding="false"
+            android:letterSpacing="0"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:text="Koleksi"
+            android:textAlignment="textStart"
+            android:textAllCaps="false"
+            android:textSize="24sp"
+            app:icon="@drawable/ic_ltk_book_1"
+            app:iconSize="50dp" />
+
+        <Button
+            android:id="@+id/btnPanduan"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#1A216F"
+            android:fontFamily="@font/poppins_semibold"
+            android:includeFontPadding="false"
+            android:letterSpacing="0"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp"
+            android:text="Panduan"
+            android:textAlignment="textStart"
+            android:textAllCaps="false"
+            android:textSize="24sp"
+            app:icon="@drawable/ic_ltk_bulb_1"
+            app:iconSize="50dp" />
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
