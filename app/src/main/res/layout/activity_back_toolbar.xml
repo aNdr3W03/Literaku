@@ -8,7 +8,7 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="70dp"
         android:background="@color/primary1"
         android:minHeight="?attr/actionBarSize"
@@ -31,9 +31,11 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
                 android:backgroundTint="@android:color/transparent"
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
+                android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_ltk_arrow_back_1" />
 
             <TextView
@@ -43,14 +45,16 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1" />
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/settingBtn"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_gravity="center_vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:adjustViewBounds="true"
+                android:backgroundTint="@android:color/transparent"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp"
+                android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_ltk_settings_1" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
