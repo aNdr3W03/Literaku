@@ -42,21 +42,29 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="10dp"
-                android:layout_weight="1"
                 android:fontFamily="@font/poppins_semibold"
                 android:includeFontPadding="false"
                 android:text="Literaku"
                 android:textColor="@color/primary1"
                 android:textSize="18sp" />
 
-            <ImageView
+            <TextView
+                android:id="@+id/spaceText1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1" />
+
+            <ImageButton
                 android:id="@+id/settingBtn"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_gravity="center_vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:adjustViewBounds="true"
+                android:backgroundTint="@android:color/transparent"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp"
+                android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_ltk_settings_1" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>

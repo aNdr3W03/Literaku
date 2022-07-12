@@ -37,4 +37,7 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
+    <include
+        android:id="@+id/include"
+        layout="@layout/footer" />
 </androidx.constraintlayout.widget.ConstraintLayout>
