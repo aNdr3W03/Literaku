@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Literaku</string>
+
+    <string name="bantuan">Gunakan perintah-perintah berikut:</string>
+    <string name="bantuanHome1">“Cari (kata kunci)” untuk mencari di Internet.</string>
+    <string name="bantuanHome2">“Sambung bacaan terakhir” untuk menyambung riwayat bacaan.</string>
+    <string name="bantuanHome3">“Membuka Koleksi” untuk menemukan bacaan di koleksi yang tersedia.</string>
+    <string name="bantuanHome4">“Cara Pakai ReadMe” untuk memulai mempelajari fitur-fitur yang tersedia.</string>
+    <string name="bantuanHome5">“Buka Bantuan” untuk membantu kamu perintah yang tersedia.</string>
 </resources>
