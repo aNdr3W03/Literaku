@@ -10,7 +10,7 @@
         android:id="@+id/backToolbar"
         layout="@layout/activity_back_toolbar" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="70dp"
@@ -18,8 +18,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <com.github.barteksc.pdfviewer.PDFView
+            android:id="@+id/pdfView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#525658" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <include
         android:id="@+id/include"

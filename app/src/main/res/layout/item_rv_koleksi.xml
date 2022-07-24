@@ -24,6 +24,7 @@
             android:layout_width="0dp"
             android:layout_height="100dp"
             android:layout_weight="0.25"
+            android:src="@drawable/ic_ltk_document_1"
             tools:srcCompat="@tools:sample/avatars" />
 
         <LinearLayout
