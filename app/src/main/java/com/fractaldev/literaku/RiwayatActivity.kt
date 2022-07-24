@@ -52,5 +52,18 @@ class RiwayatActivity : AppCompatActivity() {
         rvRiwayat.layoutManager = LinearLayoutManager(this)
         val listRiwayatAdapter = ListRiwayatAdapter(list)
         rvRiwayat.adapter = listRiwayatAdapter
+
+        listRiwayatAdapter.setOnItemClickCallback(object : ListRiwayatAdapter.OnItemClickCallback {
+            override fun onItemClicked(buku: Buku) {
+                showSelectedBuku(buku)
+            }
+        })
+    }
+
+    private fun showSelectedBuku(buku: Buku) {
+        val moveIntent = Intent(this@RiwayatActivity, BukuActivity::class.java)
+        moveIntent.putExtra("ViewType", "assets")
+        moveIntent.putExtra("LastPageRead", 5)
+        startActivity(moveIntent)
     }
 }
