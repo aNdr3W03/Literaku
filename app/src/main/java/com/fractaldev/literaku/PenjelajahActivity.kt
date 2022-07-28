@@ -7,7 +7,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 
@@ -29,16 +28,16 @@ class PenjelajahActivity : AppCompatActivity() {
     }
 
     fun setWebView(element: WebView) {
-        element.getSettings().setLoadsImagesAutomatically(true);
-        element.getSettings().setJavaScriptEnabled(true);
-        element.getSettings().setDomStorageEnabled(true);
+        element.getSettings().setLoadsImagesAutomatically(true)
+        element.getSettings().setJavaScriptEnabled(true)
+        element.getSettings().setDomStorageEnabled(true)
 
-        element.getSettings().setSupportZoom(true);
-        element.getSettings().setBuiltInZoomControls(true);
-        element.getSettings().setDisplayZoomControls(false);
+        element.getSettings().setSupportZoom(true)
+        element.getSettings().setBuiltInZoomControls(true)
+        element.getSettings().setDisplayZoomControls(false)
 
         element.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY)
-        element.setWebViewClient(WebViewClient())
+        element.setWebViewClient(LtkWebViewClient(this@PenjelajahActivity))
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -69,7 +68,7 @@ class PenjelajahActivity : AppCompatActivity() {
 
     fun search(query: String) {
         var sendQuery = ""
-        if (query != "" && query != null) sendQuery = "search?q=$query"
+        if (query != "" && query != null) sendQuery = "search?q=filetype%3Apdf+$query"
 
         elWebView.loadUrl("https://www.google.com/$sendQuery")
     }

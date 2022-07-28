@@ -1,11 +1,13 @@
 package com.fractaldev.literaku
 
 import android.Manifest
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -13,6 +15,8 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.BaseMultiplePermissionsListener
 
 class MainActivity : AppCompatActivity() {
+    lateinit var mDialog: Dialog
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -41,6 +45,13 @@ class MainActivity : AppCompatActivity() {
         settingBtn.setOnClickListener {
             val moveIntent = Intent(this@MainActivity, SettingActivity::class.java)
             startActivity(moveIntent)
+        }
+
+        val bantuanBtn = findViewById<FloatingActionButton>(R.id.fab_bantuan)
+        bantuanBtn.setOnClickListener {
+            mDialog = Dialog(this)
+            mDialog.setContentView(R.layout.bantuan_home)
+            mDialog.show()
         }
     }
     fun setMenu() {
