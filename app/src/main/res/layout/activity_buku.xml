@@ -24,6 +24,13 @@
             android:layout_height="match_parent"
             android:background="#525658" />
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </RelativeLayout>
 
     <include

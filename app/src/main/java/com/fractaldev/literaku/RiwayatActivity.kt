@@ -63,6 +63,7 @@ class RiwayatActivity : AppCompatActivity() {
     private fun showSelectedBuku(buku: Buku) {
         val moveIntent = Intent(this@RiwayatActivity, BukuActivity::class.java)
         moveIntent.putExtra("ViewType", "assets")
+        moveIntent.putExtra("SelectedBook", "dummy.pdf")
         moveIntent.putExtra("LastPageRead", 5)
         startActivity(moveIntent)
     }
