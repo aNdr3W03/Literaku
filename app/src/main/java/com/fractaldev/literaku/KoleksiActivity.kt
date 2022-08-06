@@ -3,24 +3,26 @@ package com.fractaldev.literaku
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.ImageButton
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.fractaldev.literaku.databinding.ActivityKoleksiBinding
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class KoleksiActivity : AppCompatActivity() {
-    private lateinit var rvKoleksi: RecyclerView
-    private val list = ArrayList<Buku>()
+    private lateinit var activityBinding: ActivityKoleksiBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_koleksi)
+
+        activityBinding = ActivityKoleksiBinding.inflate(layoutInflater)
+        setContentView(activityBinding.root)
         setToolbar()
 
-        rvKoleksi = findViewById(R.id.rvKoleksi)
-        rvKoleksi.setHasFixedSize(true)
-
-        list.addAll(listBuku)
-        showRecyclerList()
+        fetchBooks()
     }
 
     fun setToolbar() {
@@ -31,33 +33,65 @@ class KoleksiActivity : AppCompatActivity() {
         }
     }
 
-    private val listBuku: ArrayList<Buku>
-        get() {
-            // DATA DUMMY
-            // Add Title
-            val dataTitle = ArrayList<String>()
-            dataTitle.add("Pembaharuan strategi pendidikan")
-            dataTitle.add("Bicara Itu Ada Seninya")
-            dataTitle.add("Mukjizat Keterbatasan")
-            dataTitle.add("Melihat Dunia Tanpa Mata")
+    fun fetchBooks() {
+        showLoading(true)
 
-            // Add Author
-            val dataAuthor = ArrayList<String>()
-            dataAuthor.add("Prof. Dr. Achmad Sanusi")
-            dataAuthor.add("Oh Su Hyang")
-            dataAuthor.add("Jihad Al-Maliki")
-            dataAuthor.add("Poppy Diah")
-
-            val listBuku = ArrayList<Buku>()
-            for (i in dataTitle.indices) {
-                val hero = Buku(dataTitle[i], "Desc", dataAuthor[i])
-                listBuku.add(hero)
+        val client = ApiConfig.getApiService().getBooks()
+        client.enqueue(object : Callback<List<KoleksiResponseItem>> {
+            override fun onResponse(
+                call: Call<List<KoleksiResponseItem>>,
+                response: Response<List<KoleksiResponseItem>>
+            ) {
+                showLoading(false)
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    if (responseBody != null) setListBooks(responseBody)
+                } else {
+                    Log.e("KoleksiActivity", "onFailure: ${response.message()}")
+                }
             }
-            return listBuku
+            override fun onFailure(call: Call<List<KoleksiResponseItem>>, t: Throwable) {
+                showLoading(false)
+                Log.e("KoleksiActivity", "onFailure: ${t.message}")
+            }
+        })
+    }
+
+    private fun setListBooks(books: List<KoleksiResponseItem>) {
+        val listBooks = ArrayList<Buku>()
+
+        for (book in books) {
+            listBooks.add(
+                Buku(
+                    title = book.title,
+                    author = book.author,
+                    bookUrl = book.url,
+                    coverURL = book.cover
+                )
+            )
         }
-    private fun showRecyclerList() {
-        rvKoleksi.layoutManager = LinearLayoutManager(this)
-        val listKoleksiAdapter = ListKoleksiAdapter(list)
-        rvKoleksi.adapter = listKoleksiAdapter
+
+        activityBinding.rvKoleksi.layoutManager = LinearLayoutManager(this)
+        val adapter = ListKoleksiAdapter(listBooks)
+        activityBinding.rvKoleksi.adapter = adapter
+
+        adapter.setOnItemClickCallback(object : ListKoleksiAdapter.OnItemClickCallback {
+            override fun onItemClicked(buku: Buku) {
+                showSelectedBuku(buku)
+            }
+        })
+    }
+
+    private fun showSelectedBuku(buku: Buku) {
+        val moveIntent = Intent(this@KoleksiActivity, BukuActivity::class.java)
+        moveIntent.putExtra("ViewType", "internet")
+        moveIntent.putExtra("SelectedBook", ""+buku.bookUrl)
+        moveIntent.putExtra("LastPageRead", 0)
+        startActivity(moveIntent)
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) activityBinding.progressBar.visibility = View.VISIBLE
+        else activityBinding.progressBar.visibility = View.GONE
     }
 }

@@ -20,7 +20,7 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/koleksiImgView"
             android:layout_width="0dp"
             android:layout_height="100dp"
             android:layout_weight="0.25"
@@ -37,7 +37,7 @@
             android:paddingRight="12dp">
 
             <TextView
-                android:id="@+id/row_title"
+                android:id="@+id/koleksiTitleView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -48,7 +48,7 @@
                 android:textSize="14sp" />
 
             <TextView
-                android:id="@+id/row_author"
+                android:id="@+id/koleksiAuthorView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"

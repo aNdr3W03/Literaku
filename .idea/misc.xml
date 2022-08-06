@@ -10,7 +10,7 @@
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/font/poppins_font_family.xml" value="0.24537037037037038" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/activity_back_toolbar.xml" value="0.5385964912280702" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/activity_buku.xml" value="0.335" />
-        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/activity_koleksi.xml" value="0.20572916666666666" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/activity_koleksi.xml" value="0.3685185185185185" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/activity_main_toolbar.xml" value="0.335" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/activity_panduan.xml" value="0.19927536231884058" />
@@ -23,7 +23,7 @@
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/dialogbox.xml" value="0.335" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/footer.xml" value="0.25" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/fragment_bantuan_list.xml" value="0.19427083333333334" />
-        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/item_rv_koleksi.xml" value="0.1" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/item_rv_koleksi.xml" value="0.375" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/item_rv_riwayat.xml" value="0.5" />
       </map>
     </option>
