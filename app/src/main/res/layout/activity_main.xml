@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <include
-        android:id="@+id/include"
+        android:id="@+id/includeMain1"
         layout="@layout/activity_main_toolbar" />
 
     <LinearLayout
@@ -17,7 +17,7 @@
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/include">
+        app:layout_constraintTop_toTopOf="parent">
 
         <Button
             android:id="@+id/btnPenjelajah"
@@ -95,6 +95,6 @@
     </LinearLayout>
 
     <include
-        android:id="@+id/include"
+        android:id="@+id/includeMain2"
         layout="@layout/footer" />
 </androidx.constraintlayout.widget.ConstraintLayout>

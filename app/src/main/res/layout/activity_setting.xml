@@ -7,10 +7,10 @@
     tools:context=".SettingActivity">
 
     <include
-        android:id="@+id/include"
+        android:id="@+id/includeSetting1"
         layout="@layout/activity_main_toolbar" />
 
     <include
-        android:id="@+id/include"
+        android:id="@+id/includeSetting2"
         layout="@layout/footer" />
 </androidx.constraintlayout.widget.ConstraintLayout>
