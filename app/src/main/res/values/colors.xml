@@ -10,6 +10,7 @@
     <color name="primary2">#1A216F</color>
     <color name="secondary1">#E11935</color>
 
+    <color name="text_black">#303030</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

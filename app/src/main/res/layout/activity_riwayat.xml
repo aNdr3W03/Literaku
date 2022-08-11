@@ -7,7 +7,7 @@
     tools:context=".RiwayatActivity">
 
     <include
-        android:id="@+id/include"
+        android:id="@+id/includeRiwayat1"
         layout="@layout/activity_main_toolbar" />
 
     <LinearLayout
@@ -37,4 +37,7 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
+    <include
+        android:id="@+id/includeRiwayat2"
+        layout="@layout/footer" />
 </androidx.constraintlayout.widget.ConstraintLayout>
