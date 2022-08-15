@@ -13,9 +13,9 @@ class LtkWebViewClient(private val context: Context) : WebViewClient() {
 
         if (regex.containsMatchIn(""+urlLowerCase)) {
             val moveIntent = Intent(context, BukuActivity::class.java)
-            moveIntent.putExtra("ViewType", "internet")
-            moveIntent.putExtra("SelectedBook", url)
-            moveIntent.putExtra("LastPageRead", 0)
+            moveIntent.putExtra("SelectedBookID", "ltk-p-"+url)
+            moveIntent.putExtra("SelectedBookUrl", ""+url)
+            moveIntent.putExtra("SelectedBookLastPage", 0)
             context.startActivity(moveIntent)
         } else {
             Toast.makeText(context, "GAGAL: Bukan file PDF -> "+urlLowerCase, Toast.LENGTH_SHORT).show()

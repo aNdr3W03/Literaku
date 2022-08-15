@@ -36,8 +36,8 @@ class RiwayatActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         setToolbar()
 
         activityBinding.rvRiwayat.setHasFixedSize(true)
-        list.addAll(listBuku)
-        showRecyclerList()
+//        list.addAll(listBuku)
+//        showRecyclerList()
     }
 
     fun setToolbar() {

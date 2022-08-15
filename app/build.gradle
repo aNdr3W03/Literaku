@@ -55,6 +55,9 @@ dependencies {
     implementation 'com.github.kk121:File-Loader:1.2'
     implementation 'com.karumi:dexter:5.0.0'
 
+    //PDF Reader
+    implementation 'com.itextpdf:itextg:5.5.10'
+
     // HTTP Client - Fetching API (Retrofit)
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
