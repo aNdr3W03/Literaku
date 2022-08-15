@@ -57,13 +57,12 @@ internal open class OnSwipeTouchListener(c: Context?) :
                             velocityY
                         ) > SWIPE_VELOCITY_THRESHOLD
                     ) {
-                        if (diffY < 0) {
+                        return if (diffY < 0) {
                             onSwipeUp()
-                            return false
-                        }
-                        else {
+                            false
+                        } else {
                             onSwipeDown()
-                            return false
+                            false
                         }
                     }
                 }

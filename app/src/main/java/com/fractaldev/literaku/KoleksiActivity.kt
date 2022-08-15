@@ -79,6 +79,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         for (book in books) {
             listBooks.add(
                 Buku(
+                    uuid = book.id.toString(),
                     title = book.title,
                     author = book.author,
                     bookUrl = book.url,
@@ -115,9 +116,9 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private fun showSelectedBuku(buku: Buku) {
         val moveIntent = Intent(this@KoleksiActivity, BukuActivity::class.java)
-        moveIntent.putExtra("ViewType", "internet")
-        moveIntent.putExtra("SelectedBook", ""+buku.bookUrl)
-        moveIntent.putExtra("LastPageRead", 0)
+        moveIntent.putExtra("SelectedBookID", ""+buku.uuid)
+        moveIntent.putExtra("SelectedBookUrl", ""+buku.bookUrl)
+        moveIntent.putExtra("SelectedBookLastPage", 0)
         startActivity(moveIntent)
     }
 
