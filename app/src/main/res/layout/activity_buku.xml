@@ -24,6 +24,55 @@
             android:layout_height="match_parent"
             android:background="#525658" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="48dp"
+            android:orientation="horizontal"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_previousPage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:clickable="true"
+                android:contentDescription="Goto Previous Page"
+                android:focusable="true"
+                android:tint="@color/white"
+                app:srcCompat="@drawable/ic_baseline_arrow_circle_left_24"
+                app:useCompatPadding="true" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_playPause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:clickable="true"
+                android:contentDescription="Play Stop Text Icon"
+                android:focusable="true"
+                android:tint="@color/white"
+                app:layout_constraintBottom_toTopOf="@+id/fab_selectFile"
+                app:layout_constraintEnd_toEndOf="@+id/fab_selectFile"
+                app:srcCompat="@drawable/ic_baseline_play_arrow_24"
+                app:useCompatPadding="true" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_nextPage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:clickable="true"
+                android:contentDescription="Goto Next Page"
+                android:focusable="true"
+                android:tint="@color/white"
+                app:srcCompat="@drawable/ic_baseline_arrow_circle_right_24"
+                app:useCompatPadding="true" />
+        </LinearLayout>
+
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_centerInParent="true"

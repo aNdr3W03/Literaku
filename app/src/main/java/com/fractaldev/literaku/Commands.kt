@@ -58,4 +58,41 @@ object Commands {
         "akses bantuan",
         "bukabantuan"
     )
+
+
+    // BukuActivity Commands
+    internal var bukuNextPage = listOf<String>(
+        "pergi ke halaman berikutnya",
+        "buka halaman berikutnya",
+        "ke halaman berikutnya",
+        "halaman berikutnya",
+        "berikutnya",
+        "pergi ke halaman selanjutnya",
+        "buka halaman selanjutnya",
+        "ke halaman selanjutnya",
+        "halaman selanjutnya",
+        "selanjutnya"
+    )
+    internal var bukuPrevPage = listOf<String>(
+        "pergi ke halaman sebelumnya",
+        "buka halaman sebelumnya",
+        "ke halaman sebelumnya",
+        "halaman sebelumnya",
+        "sebelumnya"
+    )
+    internal var bukuStopRead = listOf<String>(
+        "berhenti",
+        "berhenti membaca"
+    )
+    internal var bukuResumeRead = listOf<String>(
+        "lanjut",
+        "lanjutkan",
+        "lanjutkan membaca"
+    )
+    internal var bukuGoToFirstPage = listOf<String>(
+        "pergi ke halaman pertama",
+        "buka halaman pertama",
+        "ke halaman pertama",
+        "kembali ke halaman pertama"
+    )
 }

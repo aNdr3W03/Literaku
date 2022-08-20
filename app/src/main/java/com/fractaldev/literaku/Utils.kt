@@ -87,18 +87,25 @@ object Utils {
         }
     }
 
-    fun executeVoiceCommand(activity: Activity, command: String) {
+    fun executeVoiceCommand(activity: Activity, command: String): Boolean {
         val activityName = activity.localClassName
 
         // Will be long code for all Command
         when (command) {
             // All
-            Commands.back[0], Commands.back[1] -> activity.finish()
+            Commands.back[0], Commands.back[1] -> {
+                activity.finish()
+                return false
+            }
             Commands.backToHome[0], Commands.backToHome[1], Commands.backToHome[2], Commands.backToHome[3], Commands.backToHome[4], Commands.backToHome[5], Commands.backToHome[6], Commands.backToHome[7] -> if (activityName != "MainActivity") {
                 val moveIntent = Intent(activity, MainActivity::class.java)
                 activity.startActivity(moveIntent)
+                return false
             }
-            Commands.exit[0], Commands.exit[1], Commands.exit[2] -> activity.finishAffinity()
+            Commands.exit[0], Commands.exit[1], Commands.exit[2] -> {
+                activity.finishAffinity()
+                return false
+            }
 
             // Else
             else -> {
@@ -108,28 +115,35 @@ object Utils {
                             Commands.mainGoToPenjelajah[0],  Commands.mainGoToPenjelajah[1], Commands.mainGoToPenjelajah[2], Commands.mainGoToPenjelajah[3], Commands.mainGoToPenjelajah[4], Commands.mainGoToPenjelajah[5] -> {
                                 val moveIntent = Intent(activity, PenjelajahActivity::class.java)
                                 activity.startActivity(moveIntent)
+                                return false
                             }
                             Commands.mainGoToRiwayat[0],  Commands.mainGoToRiwayat[1], Commands.mainGoToRiwayat[2], Commands.mainGoToRiwayat[3], Commands.mainGoToRiwayat[4], Commands.mainGoToRiwayat[5] -> {
                                 val moveIntent = Intent(activity, RiwayatActivity::class.java)
                                 activity.startActivity(moveIntent)
+                                return false
                             }
                             Commands.mainGoToKoleksi[0],  Commands.mainGoToKoleksi[1], Commands.mainGoToKoleksi[2], Commands.mainGoToKoleksi[3], Commands.mainGoToKoleksi[4], Commands.mainGoToKoleksi[5] -> {
                                 val moveIntent = Intent(activity, KoleksiActivity::class.java)
                                 activity.startActivity(moveIntent)
+                                return false
                             }
                             Commands.mainGoToPanduan[0],  Commands.mainGoToPanduan[1], Commands.mainGoToPanduan[2], Commands.mainGoToPanduan[3], Commands.mainGoToPanduan[4], Commands.mainGoToPanduan[5] -> {
                                 val moveIntent = Intent(activity, PanduanActivity::class.java)
                                 activity.startActivity(moveIntent)
+                                return false
                             }
                             Commands.mainGoToBantuan[0],  Commands.mainGoToBantuan[1], Commands.mainGoToBantuan[2], Commands.mainGoToBantuan[3], Commands.mainGoToBantuan[4], Commands.mainGoToBantuan[5], Commands.mainGoToBantuan[6] -> {
                                 val mDialog = Dialog(activity)
                                 mDialog.setContentView(R.layout.bantuan_home)
                                 mDialog.show()
+                                return false
                             }
                             else -> {
                                 val textError = "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
                                 Toast.makeText(activity, textError, Toast.LENGTH_LONG).show()
                                 speak(textError, activity)
+
+                                return false
                             }
                         }
                     }
@@ -149,31 +163,45 @@ object Utils {
                                 var sendQuery = ""
                                 if (textToSearch != "" && textToSearch != null) sendQuery = "search?q=filetype%3Apdf+$textToQuery"
                                 elWebView.loadUrl("https://www.google.com/$sendQuery")
+
+                                return false
                             }
                             else {
                                 val textError = "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
                                 Toast.makeText(activity, textError, Toast.LENGTH_LONG).show()
                                 speak(textError, activity)
+
+                                return false
                             }
                         }
                     }
                     "RiwayatActivity" -> {
-
+                        return false
                     }
                     "KoleksiActivity" -> {
-
+                        return false
                     }
                     "PanduanActivity" -> {
-
+                        return false
+                    }
+                    "BukuActivity" -> {
+                        // Override
+                        return true
                     }
                     else -> {
                         val textError = "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
                         Toast.makeText(activity, textError, Toast.LENGTH_LONG).show()
                         speak(textError, activity)
+
+                        return false
                     }
                 }
+
+                return false
             }
         }
+
+        return false
     }
 
     private fun speak (text: String, activity: Activity) {
