@@ -82,6 +82,7 @@ object Commands {
         "selanjutnya"
     )
     internal var bukuPrevPage = listOf<String>(
+        "kembali ke halaman sebelumnya",
         "pergi ke halaman sebelumnya",
         "buka halaman sebelumnya",
         "baca halaman sebelumnya",
