@@ -35,6 +35,40 @@ object Utils {
         return null
     }
 
+    fun splitIntoChunks(max: Int, string: String): List<String> = ArrayList<String>(string.length / max + 1).also {
+        var firstWord = true
+        val builder = StringBuilder()
+
+        // split string by whitespace
+        for (word in string.split(Regex("( |\n|\r|\n\r)+"))) {
+            // if the current string exceeds the max size
+            if (builder.length + word.length > max) {
+                // then we add the string to the list and clear the builder
+                it.add(builder.toString())
+                builder.setLength(0)
+                firstWord = true
+            }
+            // append a space at the beginning of each word, except the first one
+            if (firstWord) firstWord = false else builder.append(' ')
+            builder.append(word)
+        }
+
+        // add the last collected part if there was any
+        if(builder.isNotEmpty()){
+            it.add(builder.toString())
+        }
+    }
+
+    fun removeElementByIndex(arr: List<*>, index: Int): List<*> {
+        if (index < 0 || index >= arr.size) {
+            return arr
+        }
+
+        val result = arr.toMutableList()
+        result.removeAt(index)
+        return result
+    }
+
     fun activateVoiceCommand(activity: Activity, requestCodeSTT: Int) {
         val language = "id-ID"
         val sttIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
