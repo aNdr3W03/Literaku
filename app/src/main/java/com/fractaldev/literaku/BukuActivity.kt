@@ -4,31 +4,32 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import com.fractaldev.literaku.databinding.ActivityBukuBinding
+import com.itextpdf.text.pdf.PdfReader
+import com.itextpdf.text.pdf.parser.PdfTextExtractor
 import com.krishna.fileloader.FileLoader
 import com.krishna.fileloader.listener.FileRequestListener
 import com.krishna.fileloader.pojo.FileResponse
 import com.krishna.fileloader.request.FileLoadRequest
 import java.io.File
-
-import com.itextpdf.text.pdf.PdfReader
-import com.itextpdf.text.pdf.parser.PdfTextExtractor
-
-import com.fractaldev.literaku.databinding.ActivityBukuBinding
 import java.util.*
 
 class BukuActivity : AppCompatActivity() {
     private lateinit var activityBinding: ActivityBukuBinding
     lateinit var reader: PdfReader
-    lateinit var textToRead: String
+    private var textToRead: List<String> = emptyList()
+    private var currentPageToRead: Int = 0
+    private var initialzedTTS: Boolean = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +39,16 @@ class BukuActivity : AppCompatActivity() {
         setContentView(activityBinding.root)
 
         setToolbar()
+
+        textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {}
+
+            override fun onDone(utteranceId: String?) {
+                readPage()
+            }
+
+            override fun onError(utteranceId: String?) {}
+        })
 
         if (intent != null) {
             activityBinding.progressBar.visibility = View.VISIBLE
@@ -64,7 +75,7 @@ class BukuActivity : AppCompatActivity() {
                             getPDFView(pdfFile, selectedBookLastPage)
                             activityBinding.progressBar.visibility = View.GONE
 
-                            getPDFRead(pdfFile.toUri(), selectedBookLastPage)
+                            getPDFRead(pdfFile.toUri(), selectedBookLastPage+1)
                         }
                         override fun onError(request: FileLoadRequest?, t: Throwable?) {
                             Toast.makeText(this@BukuActivity, ""+t!!.message, Toast.LENGTH_SHORT).show()
@@ -75,21 +86,6 @@ class BukuActivity : AppCompatActivity() {
 
             activityBinding.progressBar.visibility = View.GONE
         }
-
-//        activityBinding.pdfView.setOnTouchListener(object: OnSwipeTouchListener(this) {
-//            override fun onSwipeLeft() {
-//                super.onSwipeLeft()
-//                Utils.activateVoiceCommand(this@BukuActivity,
-//                    PenjelajahActivity.REQUEST_CODE_STT
-//                )
-//            }
-//            override fun onSwipeRight() {
-//                super.onSwipeLeft()
-//                Utils.activateVoiceCommand(this@BukuActivity,
-//                    PenjelajahActivity.REQUEST_CODE_STT
-//                )
-//            }
-//        })
     }
 
     fun setToolbar() {
@@ -122,7 +118,7 @@ class BukuActivity : AppCompatActivity() {
             }
             .onTap{ false }
             .onRender{nbPages, pageWidth, pageHeight ->
-                activityBinding.pdfView.fitToWidth()
+                activityBinding.pdfView.fitToWidth(lastPage)
             }
             .spacing(4)
             .enableAnnotationRendering(true)
@@ -138,21 +134,33 @@ class BukuActivity : AppCompatActivity() {
     }
 
     private fun setPageContent(pageNo: Int) {
-        Log.e("Buku", "page: "+pageNo)
         if (pageNo <= reader.numberOfPages) {
-            textToRead = PdfTextExtractor.getTextFromPage(
+            currentPageToRead = pageNo
+
+            var textFromPDF = PdfTextExtractor.getTextFromPage(
                 reader,
                 pageNo
             )
 
-            Log.e("Buku", "text: "+textToRead)
+            // Char limit to read - 4000 char
+            // For now, just set list of string with 3500 char each string
+            var arrTextFromPDF = Utils.splitIntoChunks(3500, textFromPDF)
+            textToRead = arrTextFromPDF
 
-            speak(textToRead)
-            Handler().postDelayed({
-                speak(textToRead)
-            }, 500)
+            readPage()
         } else {
-            textToRead = ""
+            textToRead = emptyList()
+        }
+    }
+
+    private fun readPage() {
+        if (textToRead.isNotEmpty()) {
+            var text = textToRead[0]
+            textToRead = Utils.removeElementByIndex(textToRead, 0) as List<String>
+
+            speak(text)
+        } else {
+            setPageContent(++currentPageToRead)
         }
     }
 
@@ -161,6 +169,7 @@ class BukuActivity : AppCompatActivity() {
             TextToSpeech.OnInitListener { status ->
                 if (status == TextToSpeech.SUCCESS) {
                     textToSpeechEngine.language = Locale("id", "ID")
+                    initialzedTTS = true
                 }
             })
     }
@@ -172,5 +181,9 @@ class BukuActivity : AppCompatActivity() {
 
     //Speaks the text with TextToSpeech
     private fun speak(text: String) =
-        textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "PdfReader")
+        if (initialzedTTS)
+            textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "PdfReader")
+        else Handler().postDelayed({
+            textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "PdfReader")
+        }, 2500)
 }
