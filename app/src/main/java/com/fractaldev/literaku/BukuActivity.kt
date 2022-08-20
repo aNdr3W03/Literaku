@@ -135,42 +135,6 @@ class BukuActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            BukuActivity.REQUEST_CODE_STT -> {
-                if (resultCode == Activity.RESULT_OK && data != null) {
-                    val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                    result?.let {
-                        val recognizedText = it[0]
-
-                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
-                            when (recognizedText) {
-                                Commands.bukuNextPage[0], Commands.bukuNextPage[1], Commands.bukuNextPage[2], Commands.bukuNextPage[3], Commands.bukuNextPage[4], Commands.bukuNextPage[5], Commands.bukuNextPage[6], Commands.bukuNextPage[7], Commands.bukuNextPage[8], Commands.bukuNextPage[9], Commands.bukuNextPage[10], Commands.bukuNextPage[11] -> {
-                                    nextPage()
-                                }
-                                Commands.bukuPrevPage[0], Commands.bukuPrevPage[1], Commands.bukuPrevPage[2], Commands.bukuPrevPage[3], Commands.bukuPrevPage[4], Commands.bukuPrevPage[5] -> {
-                                    prevPage()
-                                }
-                                Commands.bukuStopRead[0], Commands.bukuStopRead[1] -> {
-                                    playPauseRead("stop")
-                                }
-                                Commands.bukuResumeRead[0], Commands.bukuResumeRead[1], Commands.bukuResumeRead[2] -> {
-                                    playPauseRead("play")
-                                }
-                                Commands.bukuGoToFirstPage[0], Commands.bukuGoToFirstPage[1], Commands.bukuGoToFirstPage[2], Commands.bukuGoToFirstPage[3], Commands.bukuGoToFirstPage[4], Commands.bukuGoToFirstPage[5], Commands.bukuGoToFirstPage[6], Commands.bukuGoToFirstPage[7], Commands.bukuGoToFirstPage[8], Commands.bukuGoToFirstPage[9] -> {
-                                    setPageContent(1)
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    playPauseRead("play")
-                }
-            }
-        }
-    }
-
     fun getPDFView(file: File, lastPage: Int = 0) {
         activityBinding.pdfView.fromFile(file)
             .password(null) // password file pdf
@@ -200,7 +164,7 @@ class BukuActivity : AppCompatActivity() {
 
         activityBinding.pdfView.setOnClickListener {
             playPauseRead("stop")
-            Utils.activateVoiceCommand(this@BukuActivity, BukuActivity.REQUEST_CODE_STT)
+            Utils.activateVoiceCommand(this@BukuActivity, REQUEST_CODE_STT)
         }
     }
 
@@ -334,4 +298,45 @@ class BukuActivity : AppCompatActivity() {
         else Handler().postDelayed({
             textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "PdfReader")
         }, 1250)
+
+
+    // Commands - Override from Utils Commands
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            REQUEST_CODE_STT -> {
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                    result?.let {
+                        val recognizedText = it[0]
+
+                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
+                            when (recognizedText.lowercase()) {
+                                Commands.bukuNextPage[0], Commands.bukuNextPage[1], Commands.bukuNextPage[2], Commands.bukuNextPage[3], Commands.bukuNextPage[4], Commands.bukuNextPage[5], Commands.bukuNextPage[6], Commands.bukuNextPage[7], Commands.bukuNextPage[8], Commands.bukuNextPage[9], Commands.bukuNextPage[10], Commands.bukuNextPage[11] -> {
+                                    nextPage()
+                                }
+                                Commands.bukuPrevPage[0], Commands.bukuPrevPage[1], Commands.bukuPrevPage[2], Commands.bukuPrevPage[3], Commands.bukuPrevPage[4], Commands.bukuPrevPage[5], Commands.bukuPrevPage[6] -> {
+                                    prevPage()
+                                }
+                                Commands.bukuStopRead[0], Commands.bukuStopRead[1] -> {
+                                    playPauseRead("stop")
+                                }
+                                Commands.bukuResumeRead[0], Commands.bukuResumeRead[1], Commands.bukuResumeRead[2] -> {
+                                    playPauseRead("play")
+                                }
+                                Commands.bukuGoToFirstPage[0], Commands.bukuGoToFirstPage[1], Commands.bukuGoToFirstPage[2], Commands.bukuGoToFirstPage[3], Commands.bukuGoToFirstPage[4], Commands.bukuGoToFirstPage[5], Commands.bukuGoToFirstPage[6], Commands.bukuGoToFirstPage[7], Commands.bukuGoToFirstPage[8], Commands.bukuGoToFirstPage[9] -> {
+                                    setPageContent(1)
+                                }
+                                else -> {
+                                    playPauseRead("play")
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    playPauseRead("play")
+                }
+            }
+        }
+    }
 }

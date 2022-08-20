@@ -179,7 +179,32 @@ object Utils {
                         return false
                     }
                     "KoleksiActivity" -> {
-                        return false
+                        val arrCommand = command.split(" ").toMutableList()
+
+                        if (arrCommand != null) {
+                            if (
+                                arrCommand[0] == "pilih" ||
+                                arrCommand[0] == "memilih" ||
+                                arrCommand[0] == "baca" ||
+                                arrCommand[0] == "membaca" ||
+                                arrCommand[0] == "buka" ||
+                                arrCommand[0] == "membuka" ||
+                                // bug
+                                arrCommand[0] == "bukabuku" ||
+                                arrCommand[0] == "bacabuku" ||
+                                arrCommand[0] == "pilihbuku"
+                            ) {
+                                // Override - because list of books is in activity variable
+                                return true
+                            }
+                            else {
+                                val textError = "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
+                                Toast.makeText(activity, textError, Toast.LENGTH_LONG).show()
+                                speak(textError, activity)
+
+                                return false
+                            }
+                        }
                     }
                     "PanduanActivity" -> {
                         return false
