@@ -146,10 +146,10 @@ class BukuActivity : AppCompatActivity() {
 
                         if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
                             when (recognizedText) {
-                                Commands.bukuNextPage[0], Commands.bukuNextPage[1], Commands.bukuNextPage[2], Commands.bukuNextPage[3], Commands.bukuNextPage[4], Commands.bukuNextPage[5], Commands.bukuNextPage[6], Commands.bukuNextPage[7], Commands.bukuNextPage[8], Commands.bukuNextPage[9] -> {
+                                Commands.bukuNextPage[0], Commands.bukuNextPage[1], Commands.bukuNextPage[2], Commands.bukuNextPage[3], Commands.bukuNextPage[4], Commands.bukuNextPage[5], Commands.bukuNextPage[6], Commands.bukuNextPage[7], Commands.bukuNextPage[8], Commands.bukuNextPage[9], Commands.bukuNextPage[10], Commands.bukuNextPage[11] -> {
                                     nextPage()
                                 }
-                                Commands.bukuPrevPage[0], Commands.bukuPrevPage[1], Commands.bukuPrevPage[2], Commands.bukuPrevPage[3], Commands.bukuPrevPage[4] -> {
+                                Commands.bukuPrevPage[0], Commands.bukuPrevPage[1], Commands.bukuPrevPage[2], Commands.bukuPrevPage[3], Commands.bukuPrevPage[4], Commands.bukuPrevPage[5] -> {
                                     prevPage()
                                 }
                                 Commands.bukuStopRead[0], Commands.bukuStopRead[1] -> {
@@ -158,7 +158,7 @@ class BukuActivity : AppCompatActivity() {
                                 Commands.bukuResumeRead[0], Commands.bukuResumeRead[1], Commands.bukuResumeRead[2] -> {
                                     playPauseRead("play")
                                 }
-                                Commands.bukuGoToFirstPage[0], Commands.bukuGoToFirstPage[1], Commands.bukuGoToFirstPage[2], Commands.bukuGoToFirstPage[2] -> {
+                                Commands.bukuGoToFirstPage[0], Commands.bukuGoToFirstPage[1], Commands.bukuGoToFirstPage[2], Commands.bukuGoToFirstPage[3], Commands.bukuGoToFirstPage[4], Commands.bukuGoToFirstPage[5], Commands.bukuGoToFirstPage[6], Commands.bukuGoToFirstPage[7], Commands.bukuGoToFirstPage[8], Commands.bukuGoToFirstPage[9] -> {
                                     setPageContent(1)
                                 }
                             }

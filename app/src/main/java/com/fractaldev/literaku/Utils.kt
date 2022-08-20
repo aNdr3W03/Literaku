@@ -97,7 +97,7 @@ object Utils {
                 activity.finish()
                 return false
             }
-            Commands.backToHome[0], Commands.backToHome[1], Commands.backToHome[2], Commands.backToHome[3], Commands.backToHome[4], Commands.backToHome[5], Commands.backToHome[6], Commands.backToHome[7] -> if (activityName != "MainActivity") {
+            Commands.backToHome[0], Commands.backToHome[1], Commands.backToHome[2], Commands.backToHome[3] -> if (activityName != "MainActivity") {
                 val moveIntent = Intent(activity, MainActivity::class.java)
                 activity.startActivity(moveIntent)
                 return false
@@ -112,27 +112,27 @@ object Utils {
                 when (activityName) {
                     "MainActivity" -> {
                         when (command) {
-                            Commands.mainGoToPenjelajah[0],  Commands.mainGoToPenjelajah[1], Commands.mainGoToPenjelajah[2], Commands.mainGoToPenjelajah[3], Commands.mainGoToPenjelajah[4], Commands.mainGoToPenjelajah[5] -> {
+                            Commands.mainGoToPenjelajah[0],  Commands.mainGoToPenjelajah[1], Commands.mainGoToPenjelajah[2], Commands.mainGoToPenjelajah[3], Commands.mainGoToPenjelajah[4], Commands.mainGoToPenjelajah[5], Commands.mainGoToPenjelajah[6], Commands.mainGoToPenjelajah[7] -> {
                                 val moveIntent = Intent(activity, PenjelajahActivity::class.java)
                                 activity.startActivity(moveIntent)
                                 return false
                             }
-                            Commands.mainGoToRiwayat[0],  Commands.mainGoToRiwayat[1], Commands.mainGoToRiwayat[2], Commands.mainGoToRiwayat[3], Commands.mainGoToRiwayat[4], Commands.mainGoToRiwayat[5] -> {
+                            Commands.mainGoToRiwayat[0],  Commands.mainGoToRiwayat[1], Commands.mainGoToRiwayat[2], Commands.mainGoToRiwayat[3], Commands.mainGoToRiwayat[4], Commands.mainGoToRiwayat[5], Commands.mainGoToRiwayat[6], Commands.mainGoToRiwayat[7] -> {
                                 val moveIntent = Intent(activity, RiwayatActivity::class.java)
                                 activity.startActivity(moveIntent)
                                 return false
                             }
-                            Commands.mainGoToKoleksi[0],  Commands.mainGoToKoleksi[1], Commands.mainGoToKoleksi[2], Commands.mainGoToKoleksi[3], Commands.mainGoToKoleksi[4], Commands.mainGoToKoleksi[5] -> {
+                            Commands.mainGoToKoleksi[0],  Commands.mainGoToKoleksi[1], Commands.mainGoToKoleksi[2], Commands.mainGoToKoleksi[3], Commands.mainGoToKoleksi[4], Commands.mainGoToKoleksi[5], Commands.mainGoToKoleksi[6], Commands.mainGoToKoleksi[7] -> {
                                 val moveIntent = Intent(activity, KoleksiActivity::class.java)
                                 activity.startActivity(moveIntent)
                                 return false
                             }
-                            Commands.mainGoToPanduan[0],  Commands.mainGoToPanduan[1], Commands.mainGoToPanduan[2], Commands.mainGoToPanduan[3], Commands.mainGoToPanduan[4], Commands.mainGoToPanduan[5] -> {
+                            Commands.mainGoToPanduan[0],  Commands.mainGoToPanduan[1], Commands.mainGoToPanduan[2], Commands.mainGoToPanduan[3], Commands.mainGoToPanduan[4], Commands.mainGoToPanduan[5], Commands.mainGoToPanduan[6], Commands.mainGoToPanduan[7] -> {
                                 val moveIntent = Intent(activity, PanduanActivity::class.java)
                                 activity.startActivity(moveIntent)
                                 return false
                             }
-                            Commands.mainGoToBantuan[0],  Commands.mainGoToBantuan[1], Commands.mainGoToBantuan[2], Commands.mainGoToBantuan[3], Commands.mainGoToBantuan[4], Commands.mainGoToBantuan[5], Commands.mainGoToBantuan[6] -> {
+                            Commands.mainGoToBantuan[0],  Commands.mainGoToBantuan[1], Commands.mainGoToBantuan[2], Commands.mainGoToBantuan[3], Commands.mainGoToBantuan[4], Commands.mainGoToBantuan[5], Commands.mainGoToBantuan[6], Commands.mainGoToBantuan[7], Commands.mainGoToBantuan[8] -> {
                                 val mDialog = Dialog(activity)
                                 mDialog.setContentView(R.layout.bantuan_home)
                                 mDialog.show()
