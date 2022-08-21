@@ -7,4 +7,9 @@
     <string name="bantuanHome3">“Membuka Koleksi” untuk menemukan bacaan di koleksi yang tersedia.</string>
     <string name="bantuanHome4">“Cara Pakai ReadMe” untuk memulai mempelajari fitur-fitur yang tersedia.</string>
     <string name="bantuanHome5">“Buka Bantuan” untuk membantu kamu perintah yang tersedia.</string>
+
+    <string name="appwidget_text">Literaku Widget</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
 </resources>

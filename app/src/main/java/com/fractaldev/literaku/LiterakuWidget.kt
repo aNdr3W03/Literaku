@@ -1,8 +1,10 @@
 package com.fractaldev.literaku
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Intent
 import android.widget.RemoteViews
 
 /**
@@ -42,11 +44,12 @@ internal fun updateAppWidget(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
-    val widgetText = loadTitlePref(context, appWidgetId)
-    // Construct the RemoteViews object
-    val views = RemoteViews(context.packageName, R.layout.literaku_widget)
-    views.setTextViewText(R.id.appwidget_text, widgetText)
+    val remoteViews = RemoteViews(context.packageName, R.layout.literaku_widget)
 
-    // Instruct the widget manager to update the widget
-    appWidgetManager.updateAppWidget(appWidgetId, views)
+    val intent = Intent(context, SplashScreen::class.java)
+
+    val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+    remoteViews.setOnClickPendingIntent(R.id.widgetView, pendingIntent)
+
+    appWidgetManager.updateAppWidget(appWidgetId, remoteViews)
 }

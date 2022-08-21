@@ -311,23 +311,26 @@ class BukuActivity : AppCompatActivity() {
                         val recognizedText = it[0]
 
                         if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
-                            when (recognizedText.lowercase()) {
-                                Commands.bukuNextPage[0], Commands.bukuNextPage[1], Commands.bukuNextPage[2], Commands.bukuNextPage[3], Commands.bukuNextPage[4], Commands.bukuNextPage[5], Commands.bukuNextPage[6], Commands.bukuNextPage[7], Commands.bukuNextPage[8], Commands.bukuNextPage[9], Commands.bukuNextPage[10], Commands.bukuNextPage[11] -> {
+                            // Override
+                            if (recognizedText.lowercase() != "") {
+                                val command = recognizedText.lowercase()
+
+                                if (Commands.bukuNextPage.contains(command)) {
                                     nextPage()
                                 }
-                                Commands.bukuPrevPage[0], Commands.bukuPrevPage[1], Commands.bukuPrevPage[2], Commands.bukuPrevPage[3], Commands.bukuPrevPage[4], Commands.bukuPrevPage[5], Commands.bukuPrevPage[6] -> {
+                                else if (Commands.bukuPrevPage.contains(command)) {
                                     prevPage()
                                 }
-                                Commands.bukuStopRead[0], Commands.bukuStopRead[1] -> {
+                                else if (Commands.bukuStopRead.contains(command)) {
                                     playPauseRead("stop")
                                 }
-                                Commands.bukuResumeRead[0], Commands.bukuResumeRead[1], Commands.bukuResumeRead[2] -> {
+                                else if (Commands.bukuResumeRead.contains(command)) {
                                     playPauseRead("play")
                                 }
-                                Commands.bukuGoToFirstPage[0], Commands.bukuGoToFirstPage[1], Commands.bukuGoToFirstPage[2], Commands.bukuGoToFirstPage[3], Commands.bukuGoToFirstPage[4], Commands.bukuGoToFirstPage[5], Commands.bukuGoToFirstPage[6], Commands.bukuGoToFirstPage[7], Commands.bukuGoToFirstPage[8], Commands.bukuGoToFirstPage[9] -> {
+                                else if (Commands.bukuGoToFirstPage.contains(command)) {
                                     setPageContent(1)
                                 }
-                                else -> {
+                                else {
                                     playPauseRead("play")
                                 }
                             }
