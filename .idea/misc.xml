@@ -3,10 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable-v21/app_widget_background.xml" value="0.166" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable-v21/app_widget_inner_view_background.xml" value="0.166" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1675" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable/bg_ltk_search.xml" value="0.191" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable/bg_search.xml" value="0.191" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable/ic_baseline_arrow_circle_left_24.xml" value="0.1675" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable/ic_baseline_arrow_circle_right_24.xml" value="0.1675" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable/ic_baseline_play_arrow_24.xml" value="0.1675" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable/ic_ltk_book_1.xml" value="0.1675" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/drawable/ic_ltk_bulb_1.xml" value="0.1675" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/font/poppins_font_family.xml" value="0.24537037037037038" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/activity_back_toolbar.xml" value="0.5385964912280702" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/activity_buku.xml" value="0.335" />
@@ -25,6 +31,8 @@
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/fragment_bantuan_list.xml" value="0.19427083333333334" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/item_rv_koleksi.xml" value="0.375" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/item_rv_riwayat.xml" value="0.5" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/literaku_widget.xml" value="0.25" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Literaku/Literaku/app/src/main/res/layout/literaku_widget_configure.xml" value="0.23125" />
       </map>
     </option>
   </component>

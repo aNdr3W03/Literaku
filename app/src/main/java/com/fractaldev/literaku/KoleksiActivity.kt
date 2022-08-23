@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -24,6 +25,8 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private val swipeThreshold = 100
     private val swipeVelocityThreshold = 100
+
+    private var listBooks = ArrayList<Buku>()
 
     companion object {
         private const val REQUEST_CODE_STT = 1
@@ -74,7 +77,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setListBooks(books: List<KoleksiResponseItem>) {
-        val listBooks = ArrayList<Buku>()
+        listBooks = ArrayList<Buku>()
 
         for (book in books) {
             listBooks.add(
@@ -174,6 +177,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         return true
     }
 
+    // Commands - Override from Utils Commands
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
@@ -182,7 +186,67 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     result?.let {
                         val recognizedText = it[0]
-                        Utils.executeVoiceCommand(this, recognizedText.lowercase())
+
+                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
+                            // Select Book by title
+                            var command = recognizedText.lowercase()
+                            var arrCommand = command.split(" ").toMutableList()
+
+                            if (
+                                arrCommand[0] == "pilih" ||
+                                arrCommand[0] == "memilih" ||
+                                arrCommand[0] == "baca" ||
+                                arrCommand[0] == "membaca" ||
+                                arrCommand[0] == "buka" ||
+                                arrCommand[0] == "membuka" ||
+                                // bug
+                                arrCommand[0] == "bukabuku" ||
+                                arrCommand[0] == "bacabuku" ||
+                                arrCommand[0] == "pilihbuku"
+                            ) {
+                                arrCommand.removeAt(0)
+
+                                // remove word "buku"
+                                if (arrCommand[0] == "buku") arrCommand.removeAt(0)
+
+                                val title = arrCommand.joinToString(" ")
+                                val titleToSearch = arrCommand.joinToString("")
+
+                                if (titleToSearch != "") {
+                                    val listBooks = listBooks
+                                    val selectedBook = listBooks.find { it ->
+                                        it.title
+                                            .toLowerCase()
+                                            .replace("[^A-Za-z0-9 ]".toRegex(),"")
+                                            .replace("\\s+".toRegex(), "")
+                                            .contains(
+                                                titleToSearch
+                                                    .replace("[^A-Za-z0-9 ]".toRegex(),"")
+                                                    .replace("\\s+".toRegex(), "")
+                                                ) ||
+                                        titleToSearch
+                                            .replace("[^A-Za-z0-9 ]".toRegex(),"")
+                                            .replace("\\s+".toRegex(), "")
+                                            .contains(
+                                                it.title
+                                                    .toLowerCase()
+                                                    .replace("[^A-Za-z0-9 ]".toRegex(),"")
+                                                    .replace("\\s+".toRegex(), "")
+                                            )
+                                    }
+                                    if (selectedBook != null) {
+                                        showSelectedBuku(selectedBook)
+                                    } else {
+                                        val textError = "Judul buku \"$title\" tidak ditemukan. Silahkan coba lagi."
+                                        Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                                else {
+                                    val textError = "Judul buku belum disebutkan. Silahkan coba lagi."
+                                    Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
                     }
                 }
             }
