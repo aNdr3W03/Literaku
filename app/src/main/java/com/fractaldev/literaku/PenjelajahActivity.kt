@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
+import android.util.Log
 import android.view.GestureDetector
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -12,9 +13,14 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.webkit.WebView
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.fractaldev.literaku.databinding.ActivityPenjelajahBinding
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import kotlin.math.abs
 
 class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
@@ -23,6 +29,8 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
 
     private val swipeThreshold = 100
     private val swipeVelocityThreshold = 100
+
+    private var itemsSearch = ArrayList<Penjelajah>()
 
     companion object {
         internal const val REQUEST_CODE_STT = 1
@@ -34,7 +42,7 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
         activityBinding = ActivityPenjelajahBinding.inflate(layoutInflater)
         setContentView(activityBinding.root)
 
-        setWebView(activityBinding.elWebView)
+//        setWebView(activityBinding.elWebView)
         setSearchField(activityBinding.penjelajahSearchField)
 
         gestureDetector = GestureDetector(this)
@@ -94,9 +102,89 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
 
     private fun search(query: String) {
         var sendQuery = ""
-        if (query != "" && query != null) sendQuery = "search?q=filetype%3Apdf+$query"
+//        if (query != "" && query != null) sendQuery = "filetype%3Apdf+$query"
+//        activityBinding.elWebView.loadUrl("https://cse.google.com/cse?cx=f625daf1db8f54cd9&Q=$sendQuery")
 
-        activityBinding.elWebView.loadUrl("https://www.google.com/$sendQuery")
+        showLoading(true)
+
+        if (query != "" && query != null) sendQuery = "filetype:pdf $query"
+        val client = ApiConfig.getApiServiceCSE().getPenjelajahBooks(
+            "AIzaSyA354CsHWXlT7WGq_27nJe95KNm0u7a-Mg",
+            "f625daf1db8f54cd9",
+            sendQuery
+        )
+        client.enqueue(object : Callback<PenjelajahResponse> {
+            override fun onResponse(
+                call: Call<PenjelajahResponse>,
+                response: Response<PenjelajahResponse>
+            ) {
+                showLoading(false)
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    Log.e("KoleksiActivity", "body: ${responseBody}")
+                    if (responseBody != null) setItems(responseBody)
+                } else {
+                    Log.e("KoleksiActivity", "onFailure: ${response.message()}")
+                }
+            }
+            override fun onFailure(call: Call<PenjelajahResponse>, t: Throwable) {
+                showLoading(false)
+                Log.e("KoleksiActivity", "onFailure: ${t.message}")
+            }
+        })
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setItems(response: PenjelajahResponse) {
+        var items = ArrayList<Penjelajah>()
+
+        for ((index, item) in response.items.withIndex()) {
+            var imageUrl = ""
+            if (item.pagemap.cseThumbnail != null)
+                if (item.pagemap.cseThumbnail.isNotEmpty()) imageUrl = item.pagemap.cseThumbnail[0].src
+
+            items.add(
+                Penjelajah(
+                    uuid = index.toString(),
+                    title = item.title,
+                    description = item.snippet,
+                    url = item.link,
+                    imageUrl = imageUrl
+                )
+            )
+        }
+
+        itemsSearch = items
+
+        activityBinding.rvPenjelajah.layoutManager = LinearLayoutManager(this)
+        val adapter = ListPenjelajahAdapter(itemsSearch)
+        activityBinding.rvPenjelajah.adapter = adapter
+
+        adapter.setOnItemClickCallback(object : ListPenjelajahAdapter.OnItemClickCallback {
+            override fun onItemClicked(penjelajah: Penjelajah) {
+                showSelectedBuku(penjelajah.url)
+            }
+        })
+
+        activityBinding.rvPenjelajah.setOnTouchListener(object: OnSwipeTouchListener(this) {
+            override fun onSwipeLeft() {
+                super.onSwipeLeft()
+                Utils.activateVoiceCommand(this@PenjelajahActivity,
+                    REQUEST_CODE_STT
+                )
+            }
+            override fun onSwipeRight() {
+                super.onSwipeLeft()
+                Utils.activateVoiceCommand(this@PenjelajahActivity,
+                    REQUEST_CODE_STT
+                )
+            }
+        })
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) activityBinding.progressBar.visibility = View.VISIBLE
+        else activityBinding.progressBar.visibility = View.GONE
     }
 
     // Gesture Function Override
@@ -155,10 +243,87 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     result?.let {
                         val recognizedText = it[0]
-                        Utils.executeVoiceCommand(this, recognizedText.lowercase())
+                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
+                            val command = recognizedText.lowercase()
+                            val arrCommand = command.split(" ").toMutableList()
+
+                            if (arrCommand[0] == "cari" || arrCommand[0] == "mencari") {
+                                arrCommand.removeAt(0)
+                                val textToSearch = arrCommand.joinToString(" ")
+
+                                activityBinding.penjelajahSearchField.setText(textToSearch)
+                                search(textToSearch)
+                            }
+                            else if (
+                                arrCommand[0] == "pilih" ||
+                                arrCommand[0] == "memilih" ||
+                                arrCommand[0] == "baca" ||
+                                arrCommand[0] == "membaca" ||
+                                arrCommand[0] == "buka" ||
+                                arrCommand[0] == "membuka" ||
+                                // bug
+                                arrCommand[0] == "bukabuku" ||
+                                arrCommand[0] == "bacabuku" ||
+                                arrCommand[0] == "pilihbuku"
+                            ) {
+                                arrCommand.removeAt(0)
+
+                                // remove word "buku"
+                                if (arrCommand[0] == "buku") arrCommand.removeAt(0)
+
+                                val title = arrCommand.joinToString(" ")
+                                val titleToSearch = arrCommand.joinToString("")
+
+                                if (titleToSearch != "") {
+                                    val listBooks = itemsSearch
+                                    val selectedBook = listBooks.find { it ->
+                                        it.title
+                                            .toLowerCase()
+                                            .replace("[^A-Za-z0-9 ]".toRegex(), "")
+                                            .replace("\\s+".toRegex(), "")
+                                            .contains(
+                                                titleToSearch
+                                                    .replace("[^A-Za-z0-9 ]".toRegex(), "")
+                                                    .replace("\\s+".toRegex(), "")
+                                            ) ||
+                                                titleToSearch
+                                                    .replace("[^A-Za-z0-9 ]".toRegex(), "")
+                                                    .replace("\\s+".toRegex(), "")
+                                                    .contains(
+                                                        it.title
+                                                            .toLowerCase()
+                                                            .replace("[^A-Za-z0-9 ]".toRegex(), "")
+                                                            .replace("\\s+".toRegex(), "")
+                                                    )
+                                    }
+                                    if (selectedBook != null) {
+                                        showSelectedBuku(selectedBook.url)
+                                    } else {
+                                        val textError =
+                                            "Judul buku \"$title\" tidak ditemukan. Silahkan coba lagi."
+                                        Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
+        }
+    }
+
+    fun showSelectedBuku(url: String) {
+        var regex = "\\.(pdf)\$".toRegex()
+        var urlLowerCase = url?.lowercase()
+
+        if (regex.containsMatchIn(""+urlLowerCase)) {
+            val moveIntent = Intent(this, BukuActivity::class.java)
+            moveIntent.putExtra("SelectedBookID", "ltk-p-"+url)
+            moveIntent.putExtra("SelectedBookUrl", ""+url)
+            moveIntent.putExtra("SelectedBookLastPage", 0)
+            this.startActivity(moveIntent)
+        } else {
+            Toast.makeText(this, "GAGAL: Bukan file PDF -> "+urlLowerCase, Toast.LENGTH_SHORT).show()
         }
     }
 }

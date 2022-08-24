@@ -144,15 +144,33 @@ object Utils {
                         val arrCommand = command.split(" ").toMutableList()
                         if (arrCommand != null) {
                             if (arrCommand[0] == "cari" || arrCommand[0] == "mencari") {
-                                arrCommand.removeAt(0)
-                                val textToSearch = arrCommand.joinToString(" ")
-                                val textToQuery = arrCommand.joinToString("+")
+//                                arrCommand.removeAt(0)
+//                                val textToSearch = arrCommand.joinToString(" ")
+//                                val textToQuery = arrCommand.joinToString("+")
 
-                                penjelajahSearchField.setText(textToSearch)
+//                                penjelajahSearchField.setText(textToSearch)
 
-                                var sendQuery = ""
-                                if (textToSearch != "" && textToSearch != null) sendQuery = "search?q=filetype%3Apdf+$textToQuery"
-                                elWebView.loadUrl("https://www.google.com/$sendQuery")
+//                                var sendQuery = ""
+//                                if (textToSearch != "" && textToSearch != null) sendQuery = "search?q=filetype%3Apdf+$textToQuery"
+//                                elWebView.loadUrl("https://www.google.com/$sendQuery")
+
+                                // Override
+                                return true
+                            }
+                            else if (
+                                arrCommand[0] == "pilih" ||
+                                arrCommand[0] == "memilih" ||
+                                arrCommand[0] == "baca" ||
+                                arrCommand[0] == "membaca" ||
+                                arrCommand[0] == "buka" ||
+                                arrCommand[0] == "membuka" ||
+                                // bug
+                                arrCommand[0] == "bukabuku" ||
+                                arrCommand[0] == "bacabuku" ||
+                                arrCommand[0] == "pilihbuku"
+                            ) {
+                                // Override - because list of books is in activity variable
+                                return true
                             }
                             else {
                                 val textError = "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
