@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layoutDialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardCornerRadius="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/dialogTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="24dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:includeFontPadding="false"
+                android:text="Bantuan"
+                android:textAlignment="center"
+                android:textColor="@color/primary1"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/bantuanText1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:includeFontPadding="false"
+                android:text="@string/bantuanBuku0"
+                android:textColor="@color/text_black"
+                android:textSize="16sp" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/number1"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="01. "
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/textBantuanBuku1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="@string/bantuanBuku1"
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/number2"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="02. "
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/textBantuanBuku2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="@string/bantuanBuku2"
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/number3"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="03. "
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/textBantuanBuku3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="@string/bantuanBuku3"
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/number4"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="04. "
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/textBantuanBuku4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="@string/bantuanBuku4"
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/number5"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="05. "
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/textBantuanBuku5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="@string/bantuanBuku5"
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/number6"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="06. "
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/textBantuanBuku6"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="@string/bantuanBuku6"
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/number7"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="07. "
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/textBantuanBuku7"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:includeFontPadding="false"
+                            android:text="@string/bantuanBuku7"
+                            android:textColor="@color/text_black"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </ScrollView>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>

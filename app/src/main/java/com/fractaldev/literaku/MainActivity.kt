@@ -112,15 +112,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             startActivity(moveIntent)
         }
         activityBinding.includeMain2.fabBantuan.setOnClickListener {
-            mDialog = Dialog(this)
-            mDialog.setContentView(R.layout.bantuan_home)
-            mDialog.show()
-
-            mDialog.setOnDismissListener {
-                textToSpeechEngine.stop()
-            }
-
-            speak(textBantuan)
+            openBantuan()
         }
     }
 
@@ -156,6 +148,17 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         textBantuan = arrText.joinToString(" ")
     }
 
+    private fun openBantuan() {
+        mDialog = Dialog(this)
+        mDialog.setContentView(R.layout.bantuan_home)
+        mDialog.show()
+
+        mDialog.setOnDismissListener {
+            textToSpeechEngine.stop()
+        }
+
+        speak(textBantuan)
+    }
 
     // Gesture Function Override
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -211,7 +214,16 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     result?.let {
                         val recognizedText = it[0]
-                        Utils.executeVoiceCommand(this, recognizedText.lowercase())
+                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
+                            val command = recognizedText.lowercase()
+
+                            if (Commands.openBantuan.contains(command)) {
+                                openBantuan()
+                            }
+                            else {
+                                speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
+                            }
+                        }
                     }
                 }
             }

@@ -9,6 +9,28 @@
     <string name="bantuanHome5">“Buka Bantuan” untuk membantu kamu mengetahui perintah yang tersedia.</string>
     <string name="bantuanHome6">“Keluar” untuk keluar dari aplikasi Literaku.</string>
 
+    <string name="bantuanBuku0">Anda sedang berada di halaman buku. Gunakan perintah-perintah berikut:</string>
+    <string name="bantuanBuku1">“Baca halaman berikutnya” untuk membaca halaman berikutnya.</string>
+    <string name="bantuanBuku2">“Baca halaman sebelumnya” untuk membaca halaman sebelumnya.</string>
+    <string name="bantuanBuku3">“Baca halaman pertama” untuk kembali membaca halaman pertama.</string>
+    <string name="bantuanBuku4">“Berhenti Membaca” untuk berhenti membaca.</string>
+    <string name="bantuanBuku5">“Lanjutkan Membaca” untuk lanjut membaca.</string>
+    <string name="bantuanBuku6">“Kembali” untuk kembali ke halaman sebelumnya.</string>
+    <string name="bantuanBuku7">“Keluar” untuk keluar dari aplikasi Literaku.</string>
+
+    <string name="bantuanPenjelajah0">Anda sedang berada di halaman penjelajah. Gunakan perintah-perintah berikut:</string>
+    <string name="bantuanPenjelajah1">“Cari” lalu sebutkan judul bacaan yang ingin dicari.</string>
+    <string name="bantuanPenjelajah2">“Buka” lalu sebutkan judul bacaan yang ada dari hasil pencarian. Saat memasuki halaman bacaan, mengaktifkan perintah suara dapat dilakukan dengan mengetuk sekali layar.</string>
+    <string name="bantuanPenjelajah3">“Baca ulang daftar bacaan” untuk mengetahui ulang daftar bacaan dari hasil pencarian.</string>
+    <string name="bantuanPenjelajah4">“Kembali” untuk kembali ke halaman sebelumnya.</string>
+    <string name="bantuanPenjelajah5">“Keluar” untuk keluar dari aplikasi Literaku.</string>
+
+    <string name="bantuanKoleksi0">Anda sedang berada di halaman koleksi. Gunakan perintah-perintah berikut:</string>
+    <string name="bantuanKoleksi1">“Buka” lalu sebutkan judul bacaan yang ada dari hasil pencarian. Saat memasuki halaman bacaan, mengaktifkan perintah suara dapat dilakukan dengan mengetuk sekali layar.</string>
+    <string name="bantuanKoleksi2">“Baca ulang daftar bacaan” untuk mengetahui ulang daftar bacaan yang tersedia.</string>
+    <string name="bantuanKoleksi3">“Kembali” untuk kembali ke halaman sebelumnya.</string>
+    <string name="bantuanKoleksi4">“Keluar” untuk keluar dari aplikasi Literaku.</string>
+
     <string name="appwidget_text">Literaku Widget</string>
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>

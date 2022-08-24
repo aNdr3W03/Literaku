@@ -2,6 +2,7 @@ package com.fractaldev.literaku
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -29,11 +30,15 @@ import java.util.*
 
 class BukuActivity : AppCompatActivity() {
     private lateinit var activityBinding: ActivityBukuBinding
+
+    lateinit var mDialog: Dialog
+    private var initialzedTTS: Boolean = false
+    private var textBantuan: String = ""
+
     lateinit var reader: PdfReader
     private var textToRead: List<String> = emptyList()
     private var currentTextToRead: String = ""
     private var currentPageToRead: Int = 0
-    private var initialzedTTS: Boolean = false
 
     companion object {
         private const val REQUEST_CODE_STT = 1
@@ -48,6 +53,7 @@ class BukuActivity : AppCompatActivity() {
 
         setToolbar()
         setMenu()
+        getResourceBantuan()
 
         textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {
@@ -121,6 +127,9 @@ class BukuActivity : AppCompatActivity() {
             val moveIntent = Intent(this@BukuActivity, SettingActivity::class.java)
             startActivity(moveIntent)
         }
+        activityBinding.include.fabBantuan.setOnClickListener {
+            openBantuan()
+        }
     }
 
     fun setMenu() {
@@ -133,6 +142,33 @@ class BukuActivity : AppCompatActivity() {
         activityBinding.fabPlayPause.setOnClickListener {
             playPauseRead()
         }
+    }
+
+    private fun getResourceBantuan() {
+        var arrText: MutableList<String> = mutableListOf()
+        arrText.add(resources.getString(R.string.bantuanBuku0))
+        arrText.add(resources.getString(R.string.bantuanBuku1))
+        arrText.add(resources.getString(R.string.bantuanBuku2))
+        arrText.add(resources.getString(R.string.bantuanBuku3))
+        arrText.add(resources.getString(R.string.bantuanBuku4))
+        arrText.add(resources.getString(R.string.bantuanBuku5))
+        arrText.add(resources.getString(R.string.bantuanBuku6))
+        arrText.add(resources.getString(R.string.bantuanBuku7))
+
+        textBantuan = arrText.joinToString(" ")
+    }
+
+    private fun openBantuan() {
+        mDialog = Dialog(this)
+        mDialog.setContentView(R.layout.bantuan_buku)
+        mDialog.show()
+
+        mDialog.setOnDismissListener {
+            textToSpeechEngine.stop()
+            readPage()
+        }
+
+        speak(textBantuan)
     }
 
     fun getPDFView(file: File, lastPage: Int = 0) {
@@ -315,7 +351,10 @@ class BukuActivity : AppCompatActivity() {
                             if (recognizedText.lowercase() != "") {
                                 val command = recognizedText.lowercase()
 
-                                if (Commands.bukuNextPage.contains(command)) {
+                                if (Commands.openBantuan.contains(command)) {
+                                    openBantuan()
+                                }
+                                else if (Commands.bukuNextPage.contains(command)) {
                                     nextPage()
                                 }
                                 else if (Commands.bukuPrevPage.contains(command)) {
