@@ -65,6 +65,6 @@
     </RelativeLayout>
 
     <include
-        android:id="@+id/includeKoleksi2"
+        android:id="@+id/includePenjelajah2"
         layout="@layout/footer" />
 </androidx.constraintlayout.widget.ConstraintLayout>
