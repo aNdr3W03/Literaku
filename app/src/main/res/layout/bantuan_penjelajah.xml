@@ -40,7 +40,7 @@
                 android:layout_marginBottom="8dp"
                 android:fontFamily="@font/poppins_semibold"
                 android:includeFontPadding="false"
-                android:text="@string/bantuanHome0"
+                android:text="@string/bantuanPenjelajah0"
                 android:textColor="@color/text_black"
                 android:textSize="16sp" />
 
@@ -72,12 +72,12 @@
                             android:textSize="16sp" />
 
                         <TextView
-                            android:id="@+id/textBantuanHome1"
+                            android:id="@+id/textBantuanPenjelajah1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_semibold"
                             android:includeFontPadding="false"
-                            android:text="@string/bantuanHome1"
+                            android:text="@string/bantuanPenjelajah1"
                             android:textColor="@color/text_black"
                             android:textSize="16sp" />
                     </LinearLayout>
@@ -99,12 +99,12 @@
                             android:textSize="16sp" />
 
                         <TextView
-                            android:id="@+id/textBantuanHome2"
+                            android:id="@+id/textBantuanPenjelajah2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_semibold"
                             android:includeFontPadding="false"
-                            android:text="@string/bantuanHome2"
+                            android:text="@string/bantuanPenjelajah2"
                             android:textColor="@color/text_black"
                             android:textSize="16sp" />
                     </LinearLayout>
@@ -126,12 +126,12 @@
                             android:textSize="16sp" />
 
                         <TextView
-                            android:id="@+id/textBantuanHome3"
+                            android:id="@+id/textBantuanPenjelajah3"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_semibold"
                             android:includeFontPadding="false"
-                            android:text="@string/bantuanHome3"
+                            android:text="@string/bantuanPenjelajah3"
                             android:textColor="@color/text_black"
                             android:textSize="16sp" />
                     </LinearLayout>
@@ -153,12 +153,12 @@
                             android:textSize="16sp" />
 
                         <TextView
-                            android:id="@+id/textBantuanHome4"
+                            android:id="@+id/textBantuanPenjelajah4"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_semibold"
                             android:includeFontPadding="false"
-                            android:text="@string/bantuanHome4"
+                            android:text="@string/bantuanPenjelajah4"
                             android:textColor="@color/text_black"
                             android:textSize="16sp" />
                     </LinearLayout>
@@ -180,43 +180,15 @@
                             android:textSize="16sp" />
 
                         <TextView
-                            android:id="@+id/textBantuanHome5"
+                            android:id="@+id/textBantuanPenjelajah5"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_semibold"
                             android:includeFontPadding="false"
-                            android:text="@string/bantuanHome5"
+                            android:text="@string/bantuanPenjelajah5"
                             android:textColor="@color/text_black"
                             android:textSize="16sp" />
                     </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/number6"
-                            android:layout_width="50dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
-                            android:includeFontPadding="false"
-                            android:text="05. "
-                            android:textColor="@color/text_black"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            android:id="@+id/textBantuanHome6"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
-                            android:includeFontPadding="false"
-                            android:text="@string/bantuanHome6"
-                            android:textColor="@color/text_black"
-                            android:textSize="16sp" />
-                    </LinearLayout>
-
                 </LinearLayout>
             </ScrollView>
 

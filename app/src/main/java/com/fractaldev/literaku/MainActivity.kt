@@ -17,6 +17,7 @@ import kotlin.math.abs
 
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.view.GestureDetector
 import android.view.MotionEvent
 
@@ -27,9 +28,12 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private lateinit var activityBinding: ActivityMainBinding
     private lateinit var gestureDetector: GestureDetector
     lateinit var mDialog: Dialog
+    private var initialzedTTS: Boolean = false
 
     private val swipeThreshold = 100
     private val swipeVelocityThreshold = 100
+
+    private var textBantuan: String = ""
 
     companion object {
         private const val REQUEST_CODE_STT = 1
@@ -40,9 +44,11 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             TextToSpeech.OnInitListener { status ->
                 if (status == TextToSpeech.SUCCESS) {
                     textToSpeechEngine.language = Locale("id", "ID")
+                    initialzedTTS = true
                 }
             })
     }
+
     override fun onPause() {
         textToSpeechEngine.stop()
         super.onPause()
@@ -62,6 +68,20 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
         setToolbar()
         setMenu()
+        getResourceBantuan()
+
+        textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {}
+            override fun onStop(utteranceId: String?, interrupted: Boolean) {
+                super.onStop(utteranceId, interrupted)
+            }
+
+            override fun onDone(utteranceId: String?) {
+                mDialog.dismiss()
+            }
+
+            override fun onError(utteranceId: String?) {}
+        })
 
         // PDF Viewer
         Dexter.withActivity(this)
@@ -92,9 +112,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             startActivity(moveIntent)
         }
         activityBinding.includeMain2.fabBantuan.setOnClickListener {
-            mDialog = Dialog(this)
-            mDialog.setContentView(R.layout.bantuan_home)
-            mDialog.show()
+            openBantuan()
         }
     }
 
@@ -117,6 +135,30 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         }
     }
 
+    private fun getResourceBantuan() {
+        var arrText: MutableList<String> = mutableListOf()
+        arrText.add(resources.getString(R.string.bantuanHome0))
+        arrText.add(resources.getString(R.string.bantuanHome1))
+        arrText.add(resources.getString(R.string.bantuanHome2))
+        arrText.add(resources.getString(R.string.bantuanHome3))
+        arrText.add(resources.getString(R.string.bantuanHome4))
+        arrText.add(resources.getString(R.string.bantuanHome5))
+        arrText.add(resources.getString(R.string.bantuanHome6))
+
+        textBantuan = arrText.joinToString(" ")
+    }
+
+    private fun openBantuan() {
+        mDialog = Dialog(this)
+        mDialog.setContentView(R.layout.bantuan_home)
+        mDialog.show()
+
+        mDialog.setOnDismissListener {
+            textToSpeechEngine.stop()
+        }
+
+        speak(textBantuan)
+    }
 
     // Gesture Function Override
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -172,7 +214,16 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     result?.let {
                         val recognizedText = it[0]
-                        Utils.executeVoiceCommand(this, recognizedText.lowercase())
+                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
+                            val command = recognizedText.lowercase()
+
+                            if (Commands.openBantuan.contains(command)) {
+                                openBantuan()
+                            }
+                            else {
+                                speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
+                            }
+                        }
                     }
                 }
             }
@@ -181,10 +232,22 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private fun firstTalkAfterOpen() {
         var text = "selamat datang di aplikasi literaku. swipe layar ke kanan atau ke kiri untuk mengaktifkan perintah suara. lalu katakan buka bantuan untuk membuka bantuan"
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1")
-        } else {
-            textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null)
-        }
+        speak(text)
     }
+
+    //Speaks the text with TextToSpeech
+    private fun speak(text: String) =
+        if (initialzedTTS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
+            } else {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
+            }
+        else Handler().postDelayed({
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
+            } else {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
+            }
+        }, 1250)
 }

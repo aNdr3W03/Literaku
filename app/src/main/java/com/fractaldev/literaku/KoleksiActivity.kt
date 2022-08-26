@@ -2,10 +2,15 @@ package com.fractaldev.literaku
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.speech.RecognizerIntent
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -17,19 +22,45 @@ import retrofit2.Callback
 import retrofit2.Response
 
 import com.fractaldev.literaku.databinding.ActivityKoleksiBinding
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private lateinit var activityBinding: ActivityKoleksiBinding
     private lateinit var gestureDetector: GestureDetector
+    lateinit var mDialog: Dialog
+    private var initialzedTTS: Boolean = false
+    private var afterFirstTalk: Boolean = false // Temp Solve Bug
 
     private val swipeThreshold = 100
     private val swipeVelocityThreshold = 100
 
     private var listBooks = ArrayList<Buku>()
+    private var textBantuan: String = ""
+    private var textBooks: String = ""
 
     companion object {
         private const val REQUEST_CODE_STT = 1
+    }
+
+    private val textToSpeechEngine: TextToSpeech by lazy {
+        TextToSpeech(this,
+            TextToSpeech.OnInitListener { status ->
+                if (status == TextToSpeech.SUCCESS) {
+                    textToSpeechEngine.language = Locale("id", "ID")
+                    initialzedTTS = true
+                }
+            })
+    }
+
+    override fun onPause() {
+        textToSpeechEngine.stop()
+        super.onPause()
+    }
+    override fun onDestroy() {
+        textToSpeechEngine.shutdown()
+        super.onDestroy()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +72,21 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         gestureDetector = GestureDetector(this)
 
         setToolbar()
+        getResourceBantuan()
+
+        textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {}
+            override fun onStop(utteranceId: String?, interrupted: Boolean) {
+                super.onStop(utteranceId, interrupted)
+            }
+
+            override fun onDone(utteranceId: String?) {
+                mDialog.dismiss()
+            }
+
+            override fun onError(utteranceId: String?) {}
+        })
+
         fetchBooks()
     }
 
@@ -49,6 +95,32 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             val moveIntent = Intent(this@KoleksiActivity, SettingActivity::class.java)
             startActivity(moveIntent)
         }
+        activityBinding.includeKoleksi2.fabBantuan.setOnClickListener {
+            openBantuan()
+        }
+    }
+
+    private fun getResourceBantuan() {
+        var arrText: MutableList<String> = mutableListOf()
+        arrText.add(resources.getString(R.string.bantuanKoleksi0))
+        arrText.add(resources.getString(R.string.bantuanKoleksi1))
+        arrText.add(resources.getString(R.string.bantuanKoleksi2))
+        arrText.add(resources.getString(R.string.bantuanKoleksi3))
+        arrText.add(resources.getString(R.string.bantuanKoleksi4))
+
+        textBantuan = arrText.joinToString(" ")
+    }
+
+    private fun openBantuan() {
+        mDialog = Dialog(this)
+        mDialog.setContentView(R.layout.bantuan_koleksi)
+        mDialog.show()
+
+        mDialog.setOnDismissListener {
+            textToSpeechEngine.stop()
+        }
+
+        speak(textBantuan)
     }
 
     fun fetchBooks() {
@@ -79,7 +151,8 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private fun setListBooks(books: List<KoleksiResponseItem>) {
         listBooks = ArrayList<Buku>()
 
-        for (book in books) {
+        if (books != null)
+        for ((index, book) in books.withIndex()) {
             listBooks.add(
                 Buku(
                     uuid = book.id.toString(),
@@ -89,11 +162,22 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                     coverURL = book.cover
                 )
             )
+
+            textBooks += "${index + 1}. ${book.title.trim()}. "
         }
+
+        textBooks = if (textBooks != "") "Berikut daftar koleksi: $textBooks"
+            else "Maaf, bacaan tidak ditemukan."
 
         activityBinding.rvKoleksi.layoutManager = LinearLayoutManager(this)
         val adapter = ListKoleksiAdapter(listBooks)
         activityBinding.rvKoleksi.adapter = adapter
+
+        // Bug First Talk
+        val textToSpeech = if (afterFirstTalk) textBooks else "anda memasuki halaman koleksi. $textBooks"
+        speakAdd(textToSpeech)
+
+        afterFirstTalk = true
 
         adapter.setOnItemClickCallback(object : ListKoleksiAdapter.OnItemClickCallback {
             override fun onItemClicked(buku: Buku) {
@@ -105,13 +189,13 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
                 Utils.activateVoiceCommand(this@KoleksiActivity,
-                    PenjelajahActivity.REQUEST_CODE_STT
+                    REQUEST_CODE_STT
                 )
             }
             override fun onSwipeRight() {
                 super.onSwipeLeft()
                 Utils.activateVoiceCommand(this@KoleksiActivity,
-                    PenjelajahActivity.REQUEST_CODE_STT
+                    REQUEST_CODE_STT
                 )
             }
         })
@@ -188,11 +272,18 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                         val recognizedText = it[0]
 
                         if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
-                            // Select Book by title
                             var command = recognizedText.lowercase()
                             var arrCommand = command.split(" ").toMutableList()
 
-                            if (
+                            if (Commands.openBantuan.contains(command)) {
+                                openBantuan()
+                            }
+                            else if (Commands.koleksiReadAgain.contains(command)) {
+                                val textToSpeak = if (textBooks == "") "Maaf, bacaan tidak ditemukan"
+                                else textBooks
+                                speakAdd(textToSpeak)
+                            }
+                            else if (
                                 arrCommand[0] == "pilih" ||
                                 arrCommand[0] == "memilih" ||
                                 arrCommand[0] == "baca" ||
@@ -246,10 +337,49 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                                     Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
                                 }
                             }
+                            else {
+                                speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
+                            }
                         }
                     }
                 }
             }
         }
     }
+
+    private fun firstTalkAfterOpen() {
+        var text = "anda memasuki halaman koleksi."
+        speak(text)
+    }
+
+    //Speaks the text with TextToSpeech
+    private fun speak(text: String) =
+        if (initialzedTTS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
+            } else {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
+            }
+        else Handler().postDelayed({
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
+            } else {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
+            }
+        }, 1250)
+
+    private fun speakAdd(text: String) =
+        if (initialzedTTS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_ADD, null, "tts1")
+            } else {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_ADD, null)
+            }
+        else Handler().postDelayed({
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_ADD, null, "tts1")
+            } else {
+                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_ADD, null)
+            }
+        }, 1250)
 }

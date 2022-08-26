@@ -11,6 +11,8 @@ class LtkWebViewClient(private val context: Context) : WebViewClient() {
         var regex = "\\.(pdf)\$".toRegex()
         var urlLowerCase = url?.lowercase()
 
+        Toast.makeText(context, "x -> "+urlLowerCase, Toast.LENGTH_SHORT).show()
+
         if (regex.containsMatchIn(""+urlLowerCase)) {
             val moveIntent = Intent(context, BukuActivity::class.java)
             moveIntent.putExtra("SelectedBookID", "ltk-p-"+url)

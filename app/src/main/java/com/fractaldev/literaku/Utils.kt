@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.webkit.WebView
@@ -104,6 +105,10 @@ object Utils {
             else if (Commands.exit.contains(command)) {
                 activity.finishAffinity()
             }
+            else if (Commands.openBantuan.contains(command)) {
+                // Override - dialog bantuan based on activity
+                return true
+            }
 
             // Activity Commands
             else {
@@ -125,39 +130,46 @@ object Utils {
                             val moveIntent = Intent(activity, PanduanActivity::class.java)
                             activity.startActivity(moveIntent)
                         }
-                        else if (Commands.mainGoToBantuan.contains(command)) {
-                            val mDialog = Dialog(activity)
-                            mDialog.setContentView(R.layout.bantuan_home)
-                            mDialog.show()
-                        }
                         else {
                             val textError = "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
                             Toast.makeText(activity, textError, Toast.LENGTH_LONG).show()
-                            speak(textError, activity)
+                            // Override - because speak from activity
+                            return true
                         }
                     }
 
                     "PenjelajahActivity" -> {
-                        val elWebView = activity.findViewById<WebView>(R.id.elWebView)
-                        val penjelajahSearchField = activity.findViewById<EditText>(R.id.penjelajahSearchField)
+                        if (Commands.penjelajahReadAgain.contains(command)) {
+                            // Override - because list of books is in activity variable
+                            return true
+                        }
 
                         val arrCommand = command.split(" ").toMutableList()
                         if (arrCommand != null) {
                             if (arrCommand[0] == "cari" || arrCommand[0] == "mencari") {
-                                arrCommand.removeAt(0)
-                                val textToSearch = arrCommand.joinToString(" ")
-                                val textToQuery = arrCommand.joinToString("+")
-
-                                penjelajahSearchField.setText(textToSearch)
-
-                                var sendQuery = ""
-                                if (textToSearch != "" && textToSearch != null) sendQuery = "search?q=filetype%3Apdf+$textToQuery"
-                                elWebView.loadUrl("https://www.google.com/$sendQuery")
+                                // Override
+                                return true
+                            }
+                            else if (
+                                arrCommand[0] == "pilih" ||
+                                arrCommand[0] == "memilih" ||
+                                arrCommand[0] == "baca" ||
+                                arrCommand[0] == "membaca" ||
+                                arrCommand[0] == "buka" ||
+                                arrCommand[0] == "membuka" ||
+                                // bug
+                                arrCommand[0] == "bukabuku" ||
+                                arrCommand[0] == "bacabuku" ||
+                                arrCommand[0] == "pilihbuku"
+                            ) {
+                                // Override - because list of books is in activity variable
+                                return true
                             }
                             else {
                                 val textError = "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
                                 Toast.makeText(activity, textError, Toast.LENGTH_LONG).show()
-                                speak(textError, activity)
+                                // Override - because speak from activity
+                                return true
                             }
                         }
                     }
@@ -188,7 +200,8 @@ object Utils {
                             else {
                                 val textError = "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
                                 Toast.makeText(activity, textError, Toast.LENGTH_LONG).show()
-                                speak(textError, activity)
+                                // Override - because speak from activity
+                                return true
                             }
                         }
                     }
@@ -205,31 +218,13 @@ object Utils {
                     else -> {
                         val textError = "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
                         Toast.makeText(activity, textError, Toast.LENGTH_LONG).show()
-                        speak(textError, activity)
+                        // Override - because speak from activity
+                        return true
                     }
                 }
             }
         }
 
         return false
-    }
-
-    private fun speak (text: String, activity: Activity) {
-        if (text.isNotEmpty()) {
-            val textToSpeechEngine: TextToSpeech by lazy {
-                TextToSpeech(activity,
-                    TextToSpeech.OnInitListener { status ->
-                        if (status == TextToSpeech.SUCCESS) {
-//                                textToSpeechEngine.language = Locale("id", "ID")
-                        }
-                    })
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1")
-            } else {
-                textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null)
-            }
-        }
     }
 }

@@ -10,13 +10,29 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
         <WebView
             android:id="@+id/elWebView"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="-68dp"
-            android:layout_marginRight="16dp" />
+            android:layout_marginRight="16dp"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPenjelajah"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="86dp"
+            android:layout_marginBottom="36dp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -44,8 +60,11 @@
                 android:textColor="@color/primary1"
                 android:textColorHint="@color/primary1"
                 android:textSize="20sp" />
-        </androidx.cardview.widget.CardView>
 
+        </androidx.cardview.widget.CardView>
     </RelativeLayout>
 
+    <include
+        android:id="@+id/includePenjelajah2"
+        layout="@layout/footer" />
 </androidx.constraintlayout.widget.ConstraintLayout>

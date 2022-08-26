@@ -10,6 +10,17 @@ object Commands {
         "balik ke halaman beranda",
     )
     internal var exit = listOf<String>("keluar", "keluar aplikasi", "tutup aplikasi")
+    internal var openBantuan = listOf<String>(
+        "pergi ke halaman bantuan",
+        "membuka halaman bantuan",
+        "buka halaman bantuan",
+        "akses halaman bantuan",
+        "pergi ke bantuan",
+        "membuka bantuan",
+        "buka bantuan",
+        "akses bantuan",
+        "bukabantuan"
+    )
 
 
     // MainActivity Commands
@@ -52,17 +63,6 @@ object Commands {
         "membuka panduan",
         "buka panduan",
         "akses panduan"
-    )
-    internal var mainGoToBantuan = listOf<String>(
-        "pergi ke halaman bantuan",
-        "membuka halaman bantuan",
-        "buka halaman bantuan",
-        "akses halaman bantuan",
-        "pergi ke bantuan",
-        "membuka bantuan",
-        "buka bantuan",
-        "akses bantuan",
-        "bukabantuan"
     )
 
 
@@ -110,5 +110,31 @@ object Commands {
         "baca halaman awal",
         "ke halaman awal",
         "kembali ke halaman awal"
+    )
+
+
+    // Penjelajah
+    internal var penjelajahReadAgain = listOf<String>(
+        "baca ulang",
+        "baca ulang hasil pencarian",
+        "baca ulang daftar bacaan",
+        "baca ulang daftar buku",
+        "sebutkan ulang",
+        "sebutkan ulang hasil pencarian",
+        "sebutkan ulang daftar bacaan",
+        "sebutkan ulang daftar buku",
+    )
+
+
+    // Koleksi
+    internal var koleksiReadAgain = listOf<String>(
+        "baca ulang",
+        "baca ulang hasil pencarian",
+        "baca ulang daftar bacaan",
+        "baca ulang daftar buku",
+        "sebutkan ulang",
+        "sebutkan ulang hasil pencarian",
+        "sebutkan ulang daftar bacaan",
+        "sebutkan ulang daftar buku",
     )
 }
