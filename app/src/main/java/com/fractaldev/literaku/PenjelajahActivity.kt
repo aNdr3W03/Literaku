@@ -362,11 +362,24 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
 
                                 // remove word "buku"
                                 if (arrCommand[0] == "buku") arrCommand.removeAt(0)
+                                val restCommand = arrCommand.joinToString(" ")
 
-                                val title = arrCommand.joinToString(" ")
+                                var indexToSearch: Int? = null
+                                indexToSearch = Utils.convertTextToNumber(restCommand)
                                 val titleToSearch = arrCommand.joinToString("")
 
-                                if (titleToSearch != "") {
+                                if (indexToSearch != null) {
+                                    val listBooks = itemsSearch
+                                    var selectedBook: Penjelajah? = null
+
+                                    if (indexToSearch <= listBooks.size) {
+                                        selectedBook = listBooks[indexToSearch - 1]
+                                        showSelectedBuku(selectedBook.url)
+                                    } else {
+                                        val textError = "Buku \"$indexToSearch\" tidak ditemukan. Silahkan coba lagi."
+                                        Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
+                                    }
+                                } else if (titleToSearch != "") {
                                     val listBooks = itemsSearch
                                     val selectedBook = listBooks.find { it ->
                                         it.title
@@ -390,12 +403,17 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
                                     }
                                     if (selectedBook != null) {
                                         showSelectedBuku(selectedBook.url)
-                                    } else {
+                                    }
+                                    else {
                                         val textError =
-                                            "Judul buku \"$title\" tidak ditemukan. Silahkan coba lagi."
+                                            "Judul buku \"$restCommand\" tidak ditemukan. Silahkan coba lagi."
                                         Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
                                         speak(textError)
                                     }
+                                }
+                                else {
+                                    val textError = "Judul buku belum disebutkan. Silahkan coba lagi."
+                                    Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
                                 }
                             }
                             else {
