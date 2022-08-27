@@ -1,6 +1,7 @@
 package com.fractaldev.literaku
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
@@ -20,6 +21,7 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.widget.Button
 
 import com.fractaldev.literaku.databinding.ActivityMainBinding
 import java.util.*
@@ -116,22 +118,40 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     fun setMenu() {
-        activityBinding.btnPenjelajah.setOnClickListener {
-            val moveIntent = Intent(this@MainActivity, PenjelajahActivity::class.java)
-            startActivity(moveIntent)
-        }
-        activityBinding.btnRiwayat.setOnClickListener {
-            val moveIntent = Intent(this@MainActivity, RiwayatActivity::class.java)
-            startActivity(moveIntent)
-        }
-        activityBinding.btnKoleksi.setOnClickListener {
-            val moveIntent = Intent(this@MainActivity, KoleksiActivity::class.java)
-            startActivity(moveIntent)
-        }
-        activityBinding.btnPanduan.setOnClickListener {
-            val moveIntent = Intent(this@MainActivity, PanduanActivity::class.java)
-            startActivity(moveIntent)
+        var listBtns: MutableList<Button> = mutableListOf()
+        listBtns.add(activityBinding.btnPenjelajah)
+        listBtns.add(activityBinding.btnRiwayat)
+        listBtns.add(activityBinding.btnKoleksi)
+        listBtns.add(activityBinding.btnPanduan)
+
+        listBtns.forEach { btn ->
+            lateinit var moveIntent: Intent
+            btn.setOnClickListener {
+                when (it) {
+                    activityBinding.btnPenjelajah -> moveIntent = Intent(this@MainActivity, PenjelajahActivity::class.java)
+                    activityBinding.btnRiwayat -> moveIntent = Intent(this@MainActivity, RiwayatActivity::class.java)
+                    activityBinding.btnKoleksi -> moveIntent = Intent(this@MainActivity, KoleksiActivity::class.java)
+                    activityBinding.btnPanduan -> moveIntent = Intent(this@MainActivity, PanduanActivity::class.java)
+                }
+                startActivity(moveIntent)
+            }
+
+            btn.setOnTouchListener(object: OnSwipeTouchListener(this) {
+                override fun onSwipeLeft() {
+                    super.onSwipeLeft()
+                    Utils.activateVoiceCommand(this@MainActivity,
+                        REQUEST_CODE_STT
+                    )
+                }
+                override fun onSwipeRight() {
+                    super.onSwipeLeft()
+                    Utils.activateVoiceCommand(this@MainActivity,
+                        REQUEST_CODE_STT
+                    )
+                }
+            })
         }
     }
 

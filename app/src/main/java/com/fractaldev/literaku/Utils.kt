@@ -70,6 +70,21 @@ object Utils {
         return result
     }
 
+    fun convertTextToNumber(text: String = ""): Int? {
+        if (text != "") {
+            var existNumberTextRes: MutableList<List<String>> = Numbers.getAllNumbersText()
+
+            existNumberTextRes.forEach {
+                if (it.contains(text)) {
+                    return it[0].toInt()
+                }
+            }
+
+            return null
+        }
+        return null
+    }
+
     fun activateVoiceCommand(activity: Activity, requestCodeSTT: Int) {
         val language = "id-ID"
         val sttIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
