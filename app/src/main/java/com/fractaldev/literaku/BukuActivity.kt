@@ -27,6 +27,7 @@ import com.krishna.fileloader.pojo.FileResponse
 import com.krishna.fileloader.request.FileLoadRequest
 import java.io.File
 import java.util.*
+import kotlin.math.abs
 
 class BukuActivity : AppCompatActivity() {
     private lateinit var activityBinding: ActivityBukuBinding
@@ -79,6 +80,24 @@ class BukuActivity : AppCompatActivity() {
             }
 
             override fun onError(utteranceId: String?) {}
+        })
+
+        // Voice Command Gesture
+        activityBinding.dummyScreen.setOnTouchListener(object: OnSwipeTouchListener(this) {
+            override fun onSwipeLeft() {
+                super.onSwipeLeft()
+                playPauseRead("stop")
+                Utils.activateVoiceCommand(this@BukuActivity,
+                    REQUEST_CODE_STT
+                )
+            }
+            override fun onSwipeRight() {
+                super.onSwipeLeft()
+                playPauseRead("stop")
+                Utils.activateVoiceCommand(this@BukuActivity,
+                    REQUEST_CODE_STT
+                )
+            }
         })
 
         if (intent != null) {
@@ -197,11 +216,6 @@ class BukuActivity : AppCompatActivity() {
             .enableAnnotationRendering(true)
             .invalidPageColor(Color.RED)
             .load()
-
-        activityBinding.pdfView.setOnClickListener {
-            playPauseRead("stop")
-            Utils.activateVoiceCommand(this@BukuActivity, REQUEST_CODE_STT)
-        }
     }
 
     fun getPDFRead(uri: Uri, lastPage: Int = 1) {

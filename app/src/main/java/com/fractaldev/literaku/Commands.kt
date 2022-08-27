@@ -6,8 +6,13 @@ object Commands {
     internal var backToHome = listOf<String>(
         "kembali ke halaman utama",
         "balik ke halaman utama",
+        "buka halaman utama",
         "kembali ke halaman beranda",
         "balik ke halaman beranda",
+        "buka halaman beranda",
+        "kembali ke beranda",
+        "balik ke beranda",
+        "buka beranda",
     )
     internal var exit = listOf<String>("keluar", "keluar aplikasi", "tutup aplikasi")
     internal var openBantuan = listOf<String>(
@@ -32,7 +37,25 @@ object Commands {
         "pergi ke penjelajah",
         "membuka penjelajah",
         "buka penjelajah",
-        "akses penjelajah"
+        "akses penjelajah",
+
+        "pergi ke halaman penjelajahan",
+        "membuka halaman penjelajahan",
+        "buka halaman penjelajahan",
+        "akses halaman penjelajahan",
+        "pergi ke penjelajahan",
+        "membuka penjelajahan",
+        "buka penjelajahan",
+        "akses penjelajahan",
+
+        "pergi ke halaman pencarian",
+        "membuka halaman pencarian",
+        "buka halaman pencarian",
+        "akses halaman pencarian",
+        "pergi ke pencarian",
+        "membuka pencarian",
+        "buka pencarian",
+        "akses pencarian"
     )
     internal var mainGoToRiwayat = listOf<String>(
         "pergi ke halaman riwayat",
