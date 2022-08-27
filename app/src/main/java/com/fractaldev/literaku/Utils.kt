@@ -75,7 +75,13 @@ object Utils {
             var existNumberTextRes: MutableList<List<String>> = Numbers.getAllNumbersText()
 
             existNumberTextRes.forEach {
-                if (it.contains(text)) {
+                if (it.contains(
+                    text.toLowerCase()
+                        .replace("[^A-Za-z0-9 ]".toRegex(), "")
+                        .replace("\\s+".toRegex(), "")
+                        .replace("^ke".toRegex(), "")
+                    )
+                ) {
                     return it[0].toInt()
                 }
             }
