@@ -10,6 +10,7 @@ import android.os.Handler
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.text.TextUtils
 import android.util.Log
 import android.view.GestureDetector
 import android.view.KeyEvent
@@ -52,6 +53,14 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
             TextToSpeech.OnInitListener { status ->
                 if (status == TextToSpeech.SUCCESS) {
                     textToSpeechEngine.language = Locale("id", "ID")
+
+                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
+                    if (speedSpeech != null) {
+                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
+                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
+                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
+                    }
+
                     initialzedTTS = true
                 }
             })
@@ -93,6 +102,15 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
         })
 
         firstTalkAfterOpen()
+
+        if (intent != null) {
+            val textToSearch = intent.getStringExtra("textToSearch")
+
+            if (!TextUtils.isEmpty(textToSearch) && textToSearch != null) {
+                activityBinding.penjelajahSearchField.setText(textToSearch)
+                search(textToSearch)
+            }
+        }
     }
 
     private fun setToolbar() {

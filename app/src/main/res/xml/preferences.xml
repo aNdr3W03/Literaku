@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ListPreference
+        android:entries="@array/setting_speed_speech_entries"
+        android:entryValues="@array/setting_speed_speech_entry_values"
+        android:key="SPEED_SPEECH"
+        android:title="Kecepatan suara"
+        android:defaultValue="1F"/>
+</PreferenceScreen>

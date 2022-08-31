@@ -87,6 +87,16 @@ object Commands {
         "buka panduan",
         "akses panduan"
     )
+    internal var mainGoToPengaturan = listOf<String>(
+        "pergi ke halaman pengaturan",
+        "membuka halaman pengaturan",
+        "buka halaman pengaturan",
+        "akses halaman pengaturan",
+        "pergi ke pengaturan",
+        "membuka pengaturan",
+        "buka pengaturan",
+        "akses pengaturan"
+    )
 
 
     // BukuActivity Commands

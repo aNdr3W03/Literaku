@@ -49,6 +49,14 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             TextToSpeech.OnInitListener { status ->
                 if (status == TextToSpeech.SUCCESS) {
                     textToSpeechEngine.language = Locale("id", "ID")
+
+                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
+                    if (speedSpeech != null) {
+                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
+                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
+                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
+                    }
+
                     initialzedTTS = true
                 }
             })

@@ -129,6 +129,7 @@ class BukuActivity : AppCompatActivity() {
                         }
                         override fun onError(request: FileLoadRequest?, t: Throwable?) {
                             Toast.makeText(this@BukuActivity, ""+t!!.message, Toast.LENGTH_SHORT).show()
+                            speak("Gagal membuka: "+t!!.message)
                             activityBinding.progressBar.visibility = View.GONE
                         }
                     })
@@ -331,6 +332,14 @@ class BukuActivity : AppCompatActivity() {
             TextToSpeech.OnInitListener { status ->
                 if (status == TextToSpeech.SUCCESS) {
                     textToSpeechEngine.language = Locale("id", "ID")
+
+                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
+                    if (speedSpeech != null) {
+                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
+                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
+                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
+                    }
+
                     initialzedTTS = true
                 }
             })
