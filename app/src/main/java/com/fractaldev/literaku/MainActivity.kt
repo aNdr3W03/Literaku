@@ -22,6 +22,7 @@ import android.speech.tts.UtteranceProgressListener
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.Button
+import android.widget.Toast
 
 import com.fractaldev.literaku.databinding.ActivityMainBinding
 import java.util.*
@@ -46,6 +47,14 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             TextToSpeech.OnInitListener { status ->
                 if (status == TextToSpeech.SUCCESS) {
                     textToSpeechEngine.language = Locale("id", "ID")
+
+                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
+                    if (speedSpeech != null) {
+                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
+                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
+                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
+                    }
+
                     initialzedTTS = true
                 }
             })
@@ -164,6 +173,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         arrText.add(resources.getString(R.string.bantuanHome4))
         arrText.add(resources.getString(R.string.bantuanHome5))
         arrText.add(resources.getString(R.string.bantuanHome6))
+        arrText.add(resources.getString(R.string.bantuanHome7))
 
         textBantuan = arrText.joinToString(" ")
     }
@@ -236,9 +246,22 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                         val recognizedText = it[0]
                         if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
                             val command = recognizedText.lowercase()
+                            val arrCommand = command.split(" ").toMutableList()
 
                             if (Commands.openBantuan.contains(command)) {
                                 openBantuan()
+                            }
+                            else if (arrCommand[0] == "cari" || arrCommand[0] == "mencari") {
+                                arrCommand.removeAt(0)
+                                val textToSearch = arrCommand.joinToString(" ")
+
+                                if (textToSearch != "")
+                                    searchPenjelajah(textToSearch)
+                                else {
+                                    val textError = "Judul buku belum disebutkan. Silahkan coba lagi."
+                                    Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
+                                    speak(textError)
+                                }
                             }
                             else {
                                 speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
@@ -248,6 +271,12 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                 }
             }
         }
+    }
+
+    private fun searchPenjelajah(textToSearch: String) {
+        val moveIntent = Intent(this, PenjelajahActivity::class.java)
+        moveIntent.putExtra("textToSearch", textToSearch)
+        this.startActivity(moveIntent)
     }
 
     private fun firstTalkAfterOpen() {
