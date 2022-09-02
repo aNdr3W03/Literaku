@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24px"
             android:fontFamily="@font/poppins_semibold"
-            android:text="BUKA LITERAKU"
+            android:text="LITERAKU"
             android:textColor="@color/white"
             android:textSize="36dp" />
 
