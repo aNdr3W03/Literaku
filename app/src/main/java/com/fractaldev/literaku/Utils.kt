@@ -1,18 +1,11 @@
 package com.fractaldev.literaku
 
 import android.app.Activity
-import android.app.Dialog
-import android.content.ActivityNotFoundException
+import android.content.*
 import android.content.Context
-import android.content.ContextWrapper
-import android.content.Intent
-import android.os.Build
-import android.os.Handler
 import android.speech.RecognizerIntent
-import android.speech.tts.TextToSpeech
-import android.webkit.WebView
-import android.widget.EditText
 import android.widget.Toast
+import androidx.preference.PreferenceManager
 import java.util.*
 
 
@@ -23,7 +16,7 @@ object Utils {
         return a + b
     }
 
-        fun getActivity(context: Context?): Activity? {
+    fun getActivity(context: Context?): Activity? {
         if (context == null) {
             return null
         } else if (context is ContextWrapper) {
@@ -34,6 +27,11 @@ object Utils {
             }
         }
         return null
+    }
+
+    fun getSettingsValue(key: String?, context: Context?): String? {
+        val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
+        return preferences.getString(key, null)
     }
 
     fun splitIntoChunks(max: Int, string: String): List<String> = ArrayList<String>(string.length / max + 1).also {
@@ -68,6 +66,27 @@ object Utils {
         val result = arr.toMutableList()
         result.removeAt(index)
         return result
+    }
+
+    fun convertTextToNumber(text: String = ""): Int? {
+        if (text != "") {
+            var existNumberTextRes: MutableList<List<String>> = Numbers.getAllNumbersText()
+
+            existNumberTextRes.forEach {
+                if (it.contains(
+                    text.toLowerCase()
+                        .replace("[^A-Za-z0-9 ]".toRegex(), "")
+                        .replace("\\s+".toRegex(), "")
+                        .replace("^ke".toRegex(), "")
+                    )
+                ) {
+                    return it[0].toInt()
+                }
+            }
+
+            return null
+        }
+        return null
     }
 
     fun activateVoiceCommand(activity: Activity, requestCodeSTT: Int) {
@@ -109,12 +128,21 @@ object Utils {
                 // Override - dialog bantuan based on activity
                 return true
             }
+            else if (Commands.mainGoToPengaturan.contains(command)) {
+                val moveIntent = Intent(activity, SettingActivity::class.java)
+                activity.startActivity(moveIntent)
+            }
 
             // Activity Commands
             else {
                 when (activityName) {
                     "MainActivity" -> {
-                        if (Commands.mainGoToPenjelajah.contains(command)) {
+                        val arrCommand = command.split(" ").toMutableList()
+                        if (arrCommand[0] == "cari" || arrCommand[0] == "mencari") {
+                            // Override
+                            return true
+                        }
+                        else if (Commands.mainGoToPenjelajah.contains(command)) {
                             val moveIntent = Intent(activity, PenjelajahActivity::class.java)
                             activity.startActivity(moveIntent)
                         }

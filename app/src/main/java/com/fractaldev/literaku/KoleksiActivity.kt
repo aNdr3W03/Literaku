@@ -49,6 +49,14 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             TextToSpeech.OnInitListener { status ->
                 if (status == TextToSpeech.SUCCESS) {
                     textToSpeechEngine.language = Locale("id", "ID")
+
+                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
+                    if (speedSpeech != null) {
+                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
+                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
+                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
+                    }
+
                     initialzedTTS = true
                 }
             })
@@ -299,11 +307,25 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
                                 // remove word "buku"
                                 if (arrCommand[0] == "buku") arrCommand.removeAt(0)
+                                val restCommand = arrCommand.joinToString(" ")
 
-                                val title = arrCommand.joinToString(" ")
+                                var indexToSearch: Int? = null
+                                indexToSearch = Utils.convertTextToNumber(restCommand)
                                 val titleToSearch = arrCommand.joinToString("")
 
-                                if (titleToSearch != "") {
+                                // SEARCH BY INDEX - First to search (prevent number in title if search by title)
+                                if (indexToSearch != null) {
+                                    val listBooks = listBooks
+                                    var selectedBook: Buku? = null
+
+                                    if (indexToSearch <= listBooks.size) {
+                                        selectedBook = listBooks[indexToSearch - 1]
+                                        showSelectedBuku(selectedBook)
+                                    } else {
+                                        val textError = "Buku \"$indexToSearch\" tidak ditemukan. Silahkan coba lagi."
+                                        Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
+                                    }
+                                } else if (titleToSearch != "") {
                                     val listBooks = listBooks
                                     val selectedBook = listBooks.find { it ->
                                         it.title
@@ -314,21 +336,21 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                                                 titleToSearch
                                                     .replace("[^A-Za-z0-9 ]".toRegex(),"")
                                                     .replace("\\s+".toRegex(), "")
-                                                ) ||
-                                        titleToSearch
-                                            .replace("[^A-Za-z0-9 ]".toRegex(),"")
-                                            .replace("\\s+".toRegex(), "")
-                                            .contains(
-                                                it.title
-                                                    .toLowerCase()
+                                            ) ||
+                                                titleToSearch
                                                     .replace("[^A-Za-z0-9 ]".toRegex(),"")
                                                     .replace("\\s+".toRegex(), "")
-                                            )
+                                                    .contains(
+                                                        it.title
+                                                            .toLowerCase()
+                                                            .replace("[^A-Za-z0-9 ]".toRegex(),"")
+                                                            .replace("\\s+".toRegex(), "")
+                                                    )
                                     }
                                     if (selectedBook != null) {
                                         showSelectedBuku(selectedBook)
                                     } else {
-                                        val textError = "Judul buku \"$title\" tidak ditemukan. Silahkan coba lagi."
+                                        val textError = "Judul buku \"$restCommand\" tidak ditemukan. Silahkan coba lagi."
                                         Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
                                     }
                                 }

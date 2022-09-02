@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="setting_speed_speech_entries">
+        <item>Sangat Lambat</item>
+        <item>Lambat</item>
+        <item>Normal</item>
+        <item>Cepat</item>
+        <item>Sangat Cepat</item>
+    </string-array>
+
+    <string-array name="setting_speed_speech_entry_values">
+        <item>0.3F</item>
+        <item>0.65F</item>
+        <item>1F</item>
+        <item>1.35F</item>
+        <item>1.7F</item>
+    </string-array>
+</resources>

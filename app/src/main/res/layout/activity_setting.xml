@@ -8,9 +8,40 @@
 
     <include
         android:id="@+id/includeSetting1"
-        layout="@layout/activity_main_toolbar" />
+        layout="@layout/activity_main_blue_toolbar" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="70dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/titlePage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/primary1"
+            android:fontFamily="@font/poppins_semibold"
+            android:includeFontPadding="false"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Pengaturan"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:id="@+id/settingHolder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"/>
+
+    </LinearLayout>
 
     <include
         android:id="@+id/includeSetting2"
         layout="@layout/footer" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

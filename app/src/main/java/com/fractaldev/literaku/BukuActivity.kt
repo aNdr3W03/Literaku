@@ -27,6 +27,7 @@ import com.krishna.fileloader.pojo.FileResponse
 import com.krishna.fileloader.request.FileLoadRequest
 import java.io.File
 import java.util.*
+import kotlin.math.abs
 
 class BukuActivity : AppCompatActivity() {
     private lateinit var activityBinding: ActivityBukuBinding
@@ -81,6 +82,24 @@ class BukuActivity : AppCompatActivity() {
             override fun onError(utteranceId: String?) {}
         })
 
+        // Voice Command Gesture
+        activityBinding.dummyScreen.setOnTouchListener(object: OnSwipeTouchListener(this) {
+            override fun onSwipeLeft() {
+                super.onSwipeLeft()
+                playPauseRead("stop")
+                Utils.activateVoiceCommand(this@BukuActivity,
+                    REQUEST_CODE_STT
+                )
+            }
+            override fun onSwipeRight() {
+                super.onSwipeLeft()
+                playPauseRead("stop")
+                Utils.activateVoiceCommand(this@BukuActivity,
+                    REQUEST_CODE_STT
+                )
+            }
+        })
+
         if (intent != null) {
             activityBinding.progressBar.visibility = View.VISIBLE
             val selectedBookUrl = intent.getStringExtra("SelectedBookUrl")
@@ -110,6 +129,7 @@ class BukuActivity : AppCompatActivity() {
                         }
                         override fun onError(request: FileLoadRequest?, t: Throwable?) {
                             Toast.makeText(this@BukuActivity, ""+t!!.message, Toast.LENGTH_SHORT).show()
+                            speak("Gagal membuka: "+t!!.message)
                             activityBinding.progressBar.visibility = View.GONE
                         }
                     })
@@ -197,11 +217,6 @@ class BukuActivity : AppCompatActivity() {
             .enableAnnotationRendering(true)
             .invalidPageColor(Color.RED)
             .load()
-
-        activityBinding.pdfView.setOnClickListener {
-            playPauseRead("stop")
-            Utils.activateVoiceCommand(this@BukuActivity, REQUEST_CODE_STT)
-        }
     }
 
     fun getPDFRead(uri: Uri, lastPage: Int = 1) {
@@ -317,6 +332,14 @@ class BukuActivity : AppCompatActivity() {
             TextToSpeech.OnInitListener { status ->
                 if (status == TextToSpeech.SUCCESS) {
                     textToSpeechEngine.language = Locale("id", "ID")
+
+                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
+                    if (speedSpeech != null) {
+                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
+                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
+                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
+                    }
+
                     initialzedTTS = true
                 }
             })
