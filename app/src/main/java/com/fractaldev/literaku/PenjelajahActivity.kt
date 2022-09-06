@@ -4,11 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.speech.RecognizerIntent
-import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.text.TextUtils
 import android.util.Log
@@ -34,8 +31,9 @@ import kotlin.math.abs
 class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private lateinit var activityBinding: ActivityPenjelajahBinding
     private lateinit var gestureDetector: GestureDetector
+    private var helpers = Helpers(this)
+
     lateinit var mDialog: Dialog
-    private var initialzedTTS: Boolean = false
 
     private val swipeThreshold = 100
     private val swipeVelocityThreshold = 100
@@ -44,34 +42,12 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
     private var textBantuan: String = ""
     private var textItems: String = ""
 
-    companion object {
-        internal const val REQUEST_CODE_STT = 1
-    }
-
-    private val textToSpeechEngine: TextToSpeech by lazy {
-        TextToSpeech(this,
-            TextToSpeech.OnInitListener { status ->
-                if (status == TextToSpeech.SUCCESS) {
-                    textToSpeechEngine.language = Locale("id", "ID")
-
-                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
-                    if (speedSpeech != null) {
-                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
-                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
-                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
-                    }
-
-                    initialzedTTS = true
-                }
-            })
-    }
-
     override fun onPause() {
-        textToSpeechEngine.stop()
+        helpers.textToSpeechEngine.stop()
         super.onPause()
     }
     override fun onDestroy() {
-        textToSpeechEngine.shutdown()
+        helpers.textToSpeechEngine.shutdown()
         super.onDestroy()
     }
 
@@ -88,7 +64,7 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
         setToolbar()
         getResourceBantuan()
 
-        textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
+        helpers.textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {}
             override fun onStop(utteranceId: String?, interrupted: Boolean) {
                 super.onStop(utteranceId, interrupted)
@@ -137,10 +113,10 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
         mDialog.show()
 
         mDialog.setOnDismissListener {
-            textToSpeechEngine.stop()
+            helpers.textToSpeechEngine.stop()
         }
 
-        speak(textBantuan)
+        helpers.speak(textBantuan)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -159,15 +135,11 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
         element.setOnTouchListener(object: OnSwipeTouchListener(this) {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
-                Utils.activateVoiceCommand(this@PenjelajahActivity,
-                    REQUEST_CODE_STT
-                )
+                helpers.activateVoiceCommand()
             }
             override fun onSwipeRight() {
                 super.onSwipeLeft()
-                Utils.activateVoiceCommand(this@PenjelajahActivity,
-                    REQUEST_CODE_STT
-                )
+                helpers.activateVoiceCommand()
             }
         })
     }
@@ -218,13 +190,13 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
                     if (responseBody != null) setItems(responseBody)
                 } else {
                     Log.e("KoleksiActivity", "onFailure: ${response.message()}")
-                    speak("Maaf, pencarian gagal.")
+                    helpers.speak("Maaf, pencarian gagal.")
                 }
             }
             override fun onFailure(call: Call<PenjelajahResponse>, t: Throwable) {
                 showLoading(false)
                 Log.e("KoleksiActivity", "onFailure: ${t.message}")
-                speak("Maaf, pencarian gagal.")
+                helpers.speak("Maaf, pencarian gagal.")
             }
         })
     }
@@ -260,26 +232,22 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
         val adapter = ListPenjelajahAdapter(itemsSearch)
         activityBinding.rvPenjelajah.adapter = adapter
 
-        speak(textItems)
+        helpers.speak(textItems)
 
         adapter.setOnItemClickCallback(object : ListPenjelajahAdapter.OnItemClickCallback {
-            override fun onItemClicked(penjelajah: Penjelajah) {
-                showSelectedBuku(penjelajah.url)
+            override fun onItemClicked(data: Penjelajah) {
+                showSelectedBuku(data.url)
             }
         })
 
         activityBinding.rvPenjelajah.setOnTouchListener(object: OnSwipeTouchListener(this) {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
-                Utils.activateVoiceCommand(this@PenjelajahActivity,
-                    REQUEST_CODE_STT
-                )
+                helpers.activateVoiceCommand()
             }
             override fun onSwipeRight() {
                 super.onSwipeLeft()
-                Utils.activateVoiceCommand(this@PenjelajahActivity,
-                    REQUEST_CODE_STT
-                )
+                helpers.activateVoiceCommand()
             }
         })
     }
@@ -325,9 +293,7 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
             val diffX = e2.x - e1.x
             if (abs(diffX) > abs(diffY)) {
                 if (abs(diffX) > swipeThreshold && abs(velocityX) > swipeVelocityThreshold) {
-                    Utils.activateVoiceCommand(this@PenjelajahActivity,
-                        REQUEST_CODE_STT
-                    )
+                    helpers.activateVoiceCommand()
                 }
             }
         }
@@ -340,12 +306,12 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            REQUEST_CODE_STT -> {
+            helpers.REQUEST_CODE_STT -> {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     result?.let {
                         val recognizedText = it[0]
-                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
+                        if (helpers.executeVoiceCommand(recognizedText.lowercase())) {
                             val command = recognizedText.lowercase()
                             val arrCommand = command.split(" ").toMutableList()
 
@@ -355,7 +321,7 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
                             else if (Commands.penjelajahReadAgain.contains(command)) {
                                 val textToSpeak = if (textItems == "") "Cari dahulu judul bacaan"
                                 else textItems
-                                speak(textToSpeak)
+                                helpers.speak(textToSpeak)
                             }
                             else if (arrCommand[0] == "cari" || arrCommand[0] == "mencari") {
                                 arrCommand.removeAt(0)
@@ -426,16 +392,14 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
                                         val textError =
                                             "Judul buku \"$restCommand\" tidak ditemukan. Silahkan coba lagi."
                                         Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
-                                        speak(textError)
+                                        helpers.speak(textError)
                                     }
                                 }
                                 else {
                                     val textError = "Judul buku belum disebutkan. Silahkan coba lagi."
                                     Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
+                                    helpers.speak(textError)
                                 }
-                            }
-                            else {
-                                speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
                             }
                         }
                     }
@@ -456,28 +420,12 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
             this.startActivity(moveIntent)
         } else {
             Toast.makeText(this, "GAGAL: Bukan file PDF -> "+urlLowerCase, Toast.LENGTH_SHORT).show()
-            speak("GAGAL: Bukan file PDF")
+            helpers.speak("GAGAL: Bukan file PDF")
         }
     }
 
     private fun firstTalkAfterOpen() {
         var text = "anda memasuki halaman penjelajah."
-        speak(text)
+        helpers.speak(text)
     }
-
-    //Speaks the text with TextToSpeech
-    private fun speak(text: String) =
-        if (initialzedTTS)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
-            } else {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
-            }
-        else Handler().postDelayed({
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
-            } else {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
-            }
-        }, 1250)
 }

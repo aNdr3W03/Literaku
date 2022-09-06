@@ -15,13 +15,10 @@ import kotlin.math.abs
 class PanduanActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private lateinit var activityBinding: ActivityPanduanBinding
     private lateinit var gestureDetector: GestureDetector
+    private var helpers = Helpers(this)
 
     private val swipeThreshold = 100
     private val swipeVelocityThreshold = 100
-
-    companion object {
-        private const val REQUEST_CODE_STT = 1
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,9 +78,7 @@ class PanduanActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             val diffX = e2.x - e1.x
             if (abs(diffX) > abs(diffY)) {
                 if (abs(diffX) > swipeThreshold && abs(velocityX) > swipeVelocityThreshold) {
-                    Utils.activateVoiceCommand(this@PanduanActivity,
-                        REQUEST_CODE_STT
-                    )
+                    helpers.activateVoiceCommand()
                 }
             }
         }
@@ -96,12 +91,12 @@ class PanduanActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            REQUEST_CODE_STT -> {
+            helpers.REQUEST_CODE_STT -> {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     result?.let {
                         val recognizedText = it[0]
-                        Utils.executeVoiceCommand(this, recognizedText.lowercase())
+                        helpers.executeVoiceCommand(recognizedText.lowercase())
                     }
                 }
             }

@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
@@ -22,15 +20,15 @@ import retrofit2.Callback
 import retrofit2.Response
 
 import com.fractaldev.literaku.databinding.ActivityKoleksiBinding
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private lateinit var activityBinding: ActivityKoleksiBinding
     private lateinit var gestureDetector: GestureDetector
+    private var helpers = Helpers(this)
+
     lateinit var mDialog: Dialog
-    private var initialzedTTS: Boolean = false
     private var afterFirstTalk: Boolean = false // Temp Solve Bug
 
     private val swipeThreshold = 100
@@ -40,34 +38,12 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private var textBantuan: String = ""
     private var textBooks: String = ""
 
-    companion object {
-        private const val REQUEST_CODE_STT = 1
-    }
-
-    private val textToSpeechEngine: TextToSpeech by lazy {
-        TextToSpeech(this,
-            TextToSpeech.OnInitListener { status ->
-                if (status == TextToSpeech.SUCCESS) {
-                    textToSpeechEngine.language = Locale("id", "ID")
-
-                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
-                    if (speedSpeech != null) {
-                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
-                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
-                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
-                    }
-
-                    initialzedTTS = true
-                }
-            })
-    }
-
     override fun onPause() {
-        textToSpeechEngine.stop()
+        helpers.textToSpeechEngine.stop()
         super.onPause()
     }
     override fun onDestroy() {
-        textToSpeechEngine.shutdown()
+        helpers.textToSpeechEngine.shutdown()
         super.onDestroy()
     }
 
@@ -82,7 +58,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         setToolbar()
         getResourceBantuan()
 
-        textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
+        helpers.textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {}
             override fun onStop(utteranceId: String?, interrupted: Boolean) {
                 super.onStop(utteranceId, interrupted)
@@ -98,7 +74,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         fetchBooks()
     }
 
-    fun setToolbar() {
+    private fun setToolbar() {
         activityBinding.includeKoleksi1.settingBtn.setOnClickListener {
             val moveIntent = Intent(this@KoleksiActivity, SettingActivity::class.java)
             startActivity(moveIntent)
@@ -125,13 +101,13 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         mDialog.show()
 
         mDialog.setOnDismissListener {
-            textToSpeechEngine.stop()
+            helpers.textToSpeechEngine.stop()
         }
 
-        speak(textBantuan)
+        helpers.speak(textBantuan)
     }
 
-    fun fetchBooks() {
+    private fun fetchBooks() {
         showLoading(true)
 
         val client = ApiConfig.getApiService().getBooks()
@@ -183,8 +159,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
         // Bug First Talk
         val textToSpeech = if (afterFirstTalk) textBooks else "anda memasuki halaman koleksi. $textBooks"
-        speakAdd(textToSpeech)
-
+        helpers.speak(textToSpeech, TextToSpeech.QUEUE_ADD)
         afterFirstTalk = true
 
         adapter.setOnItemClickCallback(object : ListKoleksiAdapter.OnItemClickCallback {
@@ -196,15 +171,11 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         activityBinding.rvKoleksi.setOnTouchListener(object: OnSwipeTouchListener(this) {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
-                Utils.activateVoiceCommand(this@KoleksiActivity,
-                    REQUEST_CODE_STT
-                )
+                helpers.activateVoiceCommand()
             }
             override fun onSwipeRight() {
                 super.onSwipeLeft()
-                Utils.activateVoiceCommand(this@KoleksiActivity,
-                    REQUEST_CODE_STT
-                )
+                helpers.activateVoiceCommand()
             }
         })
     }
@@ -259,7 +230,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             val diffX = e2.x - e1.x
             if (abs(diffX) > abs(diffY)) {
                 if (abs(diffX) > swipeThreshold && abs(velocityX) > swipeVelocityThreshold) {
-                    Utils.activateVoiceCommand(this@KoleksiActivity, REQUEST_CODE_STT)
+                    helpers.activateVoiceCommand()
                 }
             }
         }
@@ -273,13 +244,13 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            REQUEST_CODE_STT -> {
+            helpers.REQUEST_CODE_STT -> {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     result?.let {
                         val recognizedText = it[0]
 
-                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
+                        if (helpers.executeVoiceCommand(recognizedText.lowercase())) {
                             var command = recognizedText.lowercase()
                             var arrCommand = command.split(" ").toMutableList()
 
@@ -289,7 +260,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                             else if (Commands.koleksiReadAgain.contains(command)) {
                                 val textToSpeak = if (textBooks == "") "Maaf, bacaan tidak ditemukan"
                                 else textBooks
-                                speakAdd(textToSpeak)
+                                helpers.speak(textToSpeak, TextToSpeech.QUEUE_ADD)
                             }
                             else if (
                                 arrCommand[0] == "pilih" ||
@@ -360,7 +331,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                                 }
                             }
                             else {
-                                speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
+                                helpers.speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
                             }
                         }
                     }
@@ -371,37 +342,6 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private fun firstTalkAfterOpen() {
         var text = "anda memasuki halaman koleksi."
-        speak(text)
+        helpers.speak(text)
     }
-
-    //Speaks the text with TextToSpeech
-    private fun speak(text: String) =
-        if (initialzedTTS)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
-            } else {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
-            }
-        else Handler().postDelayed({
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
-            } else {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
-            }
-        }, 1250)
-
-    private fun speakAdd(text: String) =
-        if (initialzedTTS)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_ADD, null, "tts1")
-            } else {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_ADD, null)
-            }
-        else Handler().postDelayed({
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_ADD, null, "tts1")
-            } else {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_ADD, null)
-            }
-        }, 1250)
 }
