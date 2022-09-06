@@ -34,6 +34,12 @@
     <string name="bantuanKoleksi3">“Kembali” untuk kembali ke halaman sebelumnya.</string>
     <string name="bantuanKoleksi4">“Keluar” untuk keluar dari aplikasi Literaku.</string>
 
+    <string name="bantuanPengaturan0">Anda sedang berada di halaman Pengaturan. Gunakan perintah-perintah berikut:</string>
+    <string name="bantuanPengaturan1">“Tambah kecepatan” untuk menambah kecepatan suara.</string>
+    <string name="bantuanPengaturan2">“Kurangi kecepatan” untuk mengurangi kecepatan suara.</string>
+    <string name="bantuanPengaturan3">“Kembali” untuk kembali ke halaman sebelumnya.</string>
+    <string name="bantuanPengaturan4">“Keluar” untuk keluar dari aplikasi Literaku.</string>
+
     <string name="appwidget_text">Literaku Widget</string>
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>

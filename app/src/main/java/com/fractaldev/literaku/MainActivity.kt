@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,7 +18,6 @@ import com.karumi.dexter.listener.multi.BaseMultiplePermissionsListener
 import kotlin.math.abs
 
 import android.speech.RecognizerIntent
-import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -30,43 +30,27 @@ import java.util.*
 class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private lateinit var activityBinding: ActivityMainBinding
     private lateinit var gestureDetector: GestureDetector
+    private var helpers = Helpers(this)
+
     lateinit var mDialog: Dialog
-    private var initialzedTTS: Boolean = false
 
     private val swipeThreshold = 100
     private val swipeVelocityThreshold = 100
 
     private var textBantuan: String = ""
 
-    companion object {
-        private const val REQUEST_CODE_STT = 1
-    }
-
-    private val textToSpeechEngine: TextToSpeech by lazy {
-        TextToSpeech(this,
-            TextToSpeech.OnInitListener { status ->
-                if (status == TextToSpeech.SUCCESS) {
-                    textToSpeechEngine.language = Locale("id", "ID")
-
-                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
-                    if (speedSpeech != null) {
-                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
-                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
-                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
-                    }
-
-                    initialzedTTS = true
-                }
-            })
-    }
-
     override fun onPause() {
-        textToSpeechEngine.stop()
+        helpers.textToSpeechEngine.stop()
+        helpers.setTextToSpeechSpeed()
         super.onPause()
     }
     override fun onDestroy() {
-        textToSpeechEngine.shutdown()
+        helpers.textToSpeechEngine.shutdown()
         super.onDestroy()
+    }
+    override fun onResume() {
+        helpers.setTextToSpeechSpeed()
+        super.onResume()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +65,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         setMenu()
         getResourceBantuan()
 
-        textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
+        helpers.textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {}
             override fun onStop(utteranceId: String?, interrupted: Boolean) {
                 super.onStop(utteranceId, interrupted)
@@ -150,15 +134,11 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             btn.setOnTouchListener(object: OnSwipeTouchListener(this) {
                 override fun onSwipeLeft() {
                     super.onSwipeLeft()
-                    Utils.activateVoiceCommand(this@MainActivity,
-                        REQUEST_CODE_STT
-                    )
+                    helpers.activateVoiceCommand()
                 }
                 override fun onSwipeRight() {
                     super.onSwipeLeft()
-                    Utils.activateVoiceCommand(this@MainActivity,
-                        REQUEST_CODE_STT
-                    )
+                    helpers.activateVoiceCommand()
                 }
             })
         }
@@ -184,10 +164,10 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         mDialog.show()
 
         mDialog.setOnDismissListener {
-            textToSpeechEngine.stop()
+            helpers.textToSpeechEngine.stop()
         }
 
-        speak(textBantuan)
+        helpers.speak(textBantuan)
     }
 
     // Gesture Function Override
@@ -226,7 +206,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             val diffX = e2.x - e1.x
             if (abs(diffX) > abs(diffY)) {
                 if (abs(diffX) > swipeThreshold && abs(velocityX) > swipeVelocityThreshold) {
-                    Utils.activateVoiceCommand(this@MainActivity, REQUEST_CODE_STT)
+                    helpers.activateVoiceCommand()
                 }
             }
         }
@@ -239,12 +219,12 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            REQUEST_CODE_STT -> {
+            helpers.REQUEST_CODE_STT -> {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     result?.let {
                         val recognizedText = it[0]
-                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
+                        if (helpers.executeVoiceCommand(recognizedText.lowercase())) {
                             val command = recognizedText.lowercase()
                             val arrCommand = command.split(" ").toMutableList()
 
@@ -260,11 +240,11 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                                 else {
                                     val textError = "Judul buku belum disebutkan. Silahkan coba lagi."
                                     Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
-                                    speak(textError)
+                                    helpers.speak(textError)
                                 }
                             }
                             else {
-                                speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
+                                helpers.speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
                             }
                         }
                     }
@@ -281,22 +261,6 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private fun firstTalkAfterOpen() {
         var text = "selamat datang di aplikasi literaku. swipe layar ke kanan atau ke kiri untuk mengaktifkan perintah suara. lalu katakan buka bantuan untuk membuka bantuan"
-        speak(text)
+        helpers.speak(text)
     }
-
-    //Speaks the text with TextToSpeech
-    private fun speak(text: String) =
-        if (initialzedTTS)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
-            } else {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
-            }
-        else Handler().postDelayed({
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "tts1")
-            } else {
-                textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null)
-            }
-        }, 1250)
 }

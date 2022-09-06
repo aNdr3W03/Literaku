@@ -26,6 +26,41 @@ object Commands {
         "akses bantuan",
         "bukabantuan"
     )
+    internal var openPengaturan = listOf<String>(
+        "pergi ke halaman pengaturan",
+        "membuka halaman pengaturan",
+        "buka halaman pengaturan",
+        "akses halaman pengaturan",
+        "pergi ke pengaturan",
+        "membuka pengaturan",
+        "buka pengaturan",
+        "akses pengaturan"
+    )
+
+    internal var increaseSpeed = listOf<String>(
+        "percepat",
+        "percepat suara",
+        "tambah kecepatan",
+        "tambah kecepatan suara",
+        "lebih cepat",
+        "cepatkan suara",
+        "cepatin suara",
+        "cepetin suara",
+        "cepatkan",
+        "cepatin",
+        "cepetin"
+    )
+    internal var decreaseSpeed = listOf<String>(
+        "perlambat",
+        "perlambat suara",
+        "kurangi kecepatan",
+        "kurangi kecepatan suara",
+        "lebih lambat",
+        "lambatkan suara",
+        "lambatin suara",
+        "lambatkan",
+        "lambatin"
+    )
 
 
     // MainActivity Commands
@@ -86,16 +121,6 @@ object Commands {
         "membuka panduan",
         "buka panduan",
         "akses panduan"
-    )
-    internal var mainGoToPengaturan = listOf<String>(
-        "pergi ke halaman pengaturan",
-        "membuka halaman pengaturan",
-        "buka halaman pengaturan",
-        "akses halaman pengaturan",
-        "pergi ke pengaturan",
-        "membuka pengaturan",
-        "buka pengaturan",
-        "akses pengaturan"
     )
 
 

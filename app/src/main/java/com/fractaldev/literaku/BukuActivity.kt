@@ -7,9 +7,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.speech.RecognizerIntent
-import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.text.TextUtils
 import android.util.Log
@@ -31,19 +29,15 @@ import kotlin.math.abs
 
 class BukuActivity : AppCompatActivity() {
     private lateinit var activityBinding: ActivityBukuBinding
+    private var helpers = Helpers(this)
 
     lateinit var mDialog: Dialog
-    private var initialzedTTS: Boolean = false
     private var textBantuan: String = ""
 
     lateinit var reader: PdfReader
     private var textToRead: List<String> = emptyList()
     private var currentTextToRead: String = ""
     private var currentPageToRead: Int = 0
-
-    companion object {
-        private const val REQUEST_CODE_STT = 1
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +50,7 @@ class BukuActivity : AppCompatActivity() {
         setMenu()
         getResourceBantuan()
 
-        textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
+        helpers.textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {
                 activityBinding.fabPlayPause.setImageDrawable(
                     AppCompatResources.getDrawable(
@@ -87,16 +81,12 @@ class BukuActivity : AppCompatActivity() {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
                 playPauseRead("stop")
-                Utils.activateVoiceCommand(this@BukuActivity,
-                    REQUEST_CODE_STT
-                )
+                helpers.activateVoiceCommand()
             }
             override fun onSwipeRight() {
                 super.onSwipeLeft()
                 playPauseRead("stop")
-                Utils.activateVoiceCommand(this@BukuActivity,
-                    REQUEST_CODE_STT
-                )
+                helpers.activateVoiceCommand()
             }
         })
 
@@ -129,7 +119,7 @@ class BukuActivity : AppCompatActivity() {
                         }
                         override fun onError(request: FileLoadRequest?, t: Throwable?) {
                             Toast.makeText(this@BukuActivity, ""+t!!.message, Toast.LENGTH_SHORT).show()
-                            speak("Gagal membuka: "+t!!.message)
+                            helpers.speak("Gagal membuka: "+t!!.message)
                             activityBinding.progressBar.visibility = View.GONE
                         }
                     })
@@ -184,11 +174,11 @@ class BukuActivity : AppCompatActivity() {
         mDialog.show()
 
         mDialog.setOnDismissListener {
-            textToSpeechEngine.stop()
+            helpers.textToSpeechEngine.stop()
             readPage()
         }
 
-        speak(textBantuan)
+        helpers.speak(textBantuan)
     }
 
     fun getPDFView(file: File, lastPage: Int = 0) {
@@ -252,7 +242,7 @@ class BukuActivity : AppCompatActivity() {
             currentTextToRead = textToRead[0]
             textToRead = Utils.removeElementByIndex(textToRead, 0) as List<String>
 
-            speak(currentTextToRead)
+            helpers.speak(currentTextToRead)
         } else {
             setPageContent(++currentPageToRead)
         }
@@ -260,8 +250,8 @@ class BukuActivity : AppCompatActivity() {
 
     private fun playPauseRead() {
         if (::reader.isInitialized) {
-            if (textToSpeechEngine.isSpeaking) {
-                textToSpeechEngine.stop()
+            if (helpers.textToSpeechEngine.isSpeaking) {
+                helpers.textToSpeechEngine.stop()
                 activityBinding.fabPlayPause.setImageDrawable(
                     AppCompatResources.getDrawable(
                         this@BukuActivity,
@@ -276,14 +266,14 @@ class BukuActivity : AppCompatActivity() {
                         R.drawable.ic_baseline_stop_24
                     )
                 )
-                speak(currentTextToRead)
+                helpers.speak(currentTextToRead)
             }
         }
     }
     private fun playPauseRead(overrideAction: String? = "") {
         if (::reader.isInitialized) {
             if (overrideAction == "stop") {
-                textToSpeechEngine.stop()
+                helpers.textToSpeechEngine.stop()
                 activityBinding.fabPlayPause.setImageDrawable(
                     AppCompatResources.getDrawable(
                         this@BukuActivity,
@@ -298,7 +288,7 @@ class BukuActivity : AppCompatActivity() {
                         R.drawable.ic_baseline_stop_24
                     )
                 )
-                speak(currentTextToRead)
+                helpers.speak(currentTextToRead)
             }
         }
     }
@@ -306,8 +296,8 @@ class BukuActivity : AppCompatActivity() {
     private fun nextPage() {
         if (::reader.isInitialized) {
             if (currentPageToRead < reader.numberOfPages) {
-                if (textToSpeechEngine.isSpeaking) {
-                    textToSpeechEngine.stop()
+                if (helpers.textToSpeechEngine.isSpeaking) {
+                    helpers.textToSpeechEngine.stop()
                 }
 
                 setPageContent(++currentPageToRead)
@@ -318,8 +308,8 @@ class BukuActivity : AppCompatActivity() {
     private fun prevPage() {
         if (::reader.isInitialized) {
             if (1 < currentPageToRead) {
-                if (textToSpeechEngine.isSpeaking) {
-                    textToSpeechEngine.stop()
+                if (helpers.textToSpeechEngine.isSpeaking) {
+                    helpers.textToSpeechEngine.stop()
                 }
 
                 setPageContent(--currentPageToRead)
@@ -327,49 +317,23 @@ class BukuActivity : AppCompatActivity() {
         }
     }
 
-    private val textToSpeechEngine: TextToSpeech by lazy {
-        TextToSpeech(this,
-            TextToSpeech.OnInitListener { status ->
-                if (status == TextToSpeech.SUCCESS) {
-                    textToSpeechEngine.language = Locale("id", "ID")
-
-                    val speedSpeech = Utils.getSettingsValue("SPEED_SPEECH", this)
-                    if (speedSpeech != null) {
-                        var speedSpeechInFloat = speedSpeech.toFloatOrNull()
-                        if (speedSpeechInFloat == null) speedSpeechInFloat = 1F
-                        textToSpeechEngine.setSpeechRate(speedSpeechInFloat)
-                    }
-
-                    initialzedTTS = true
-                }
-            })
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        textToSpeechEngine.shutdown()
+        helpers.textToSpeechEngine.shutdown()
     }
-
-    //Speaks the text with TextToSpeech
-    private fun speak(text: String) =
-        if (initialzedTTS)
-            textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "PdfReader")
-        else Handler().postDelayed({
-            textToSpeechEngine.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "PdfReader")
-        }, 1250)
 
 
     // Commands - Override from Utils Commands
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            REQUEST_CODE_STT -> {
+            helpers.REQUEST_CODE_STT -> {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     result?.let {
                         val recognizedText = it[0]
 
-                        if (Utils.executeVoiceCommand(this, recognizedText.lowercase())) {
+                        if (helpers.executeVoiceCommand(recognizedText.lowercase())) {
                             // Override
                             if (recognizedText.lowercase() != "") {
                                 val command = recognizedText.lowercase()
