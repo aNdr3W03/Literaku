@@ -260,7 +260,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     }
 
     private fun firstTalkAfterOpen() {
-        var text = "selamat datang di aplikasi literaku. swipe layar ke kanan atau ke kiri untuk mengaktifkan perintah suara. lalu katakan buka bantuan untuk membuka bantuan"
+        var text = "selamat datang di aplikasi literaku. usap layar ke kanan atau ke kiri untuk mengaktifkan perintah suara. lalu katakan buka bantuan untuk membuka bantuan"
         helpers.speak(text)
     }
 }
