@@ -184,6 +184,7 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         val moveIntent = Intent(this@KoleksiActivity, BukuActivity::class.java)
         moveIntent.putExtra("SelectedBookID", ""+buku.uuid)
         moveIntent.putExtra("SelectedBookUrl", ""+buku.bookUrl)
+        moveIntent.putExtra("SelectedBookTitle", ""+buku.title)
         moveIntent.putExtra("SelectedBookLastPage", 0)
         startActivity(moveIntent)
     }
@@ -329,9 +330,6 @@ class KoleksiActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
                                     val textError = "Judul buku belum disebutkan. Silahkan coba lagi."
                                     Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
                                 }
-                            }
-                            else {
-                                helpers.speak("Perintah \"$command\" tidak dikenal. Silahkan coba lagi.")
                             }
                         }
                     }

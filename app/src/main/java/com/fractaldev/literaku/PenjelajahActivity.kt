@@ -24,7 +24,6 @@ import com.fractaldev.literaku.databinding.ActivityPenjelajahBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 
@@ -236,7 +235,7 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
 
         adapter.setOnItemClickCallback(object : ListPenjelajahAdapter.OnItemClickCallback {
             override fun onItemClicked(data: Penjelajah) {
-                showSelectedBuku(data.url)
+                showSelectedBuku(data.url, data.title)
             }
         })
 
@@ -358,7 +357,7 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
 
                                     if (indexToSearch <= listBooks.size) {
                                         selectedBook = listBooks[indexToSearch - 1]
-                                        showSelectedBuku(selectedBook.url)
+                                        showSelectedBuku(selectedBook.url, selectedBook.title)
                                     } else {
                                         val textError = "Buku \"$indexToSearch\" tidak ditemukan. Silahkan coba lagi."
                                         Toast.makeText(this, textError, Toast.LENGTH_LONG).show()
@@ -386,7 +385,7 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
                                                     )
                                     }
                                     if (selectedBook != null) {
-                                        showSelectedBuku(selectedBook.url)
+                                        showSelectedBuku(selectedBook.url, selectedBook.title)
                                     }
                                     else {
                                         val textError =
@@ -408,7 +407,7 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
         }
     }
 
-    fun showSelectedBuku(url: String) {
+    fun showSelectedBuku(url: String, title: String) {
         var regex = "\\.(pdf)\$".toRegex()
         var urlLowerCase = url?.lowercase()
 
@@ -416,6 +415,7 @@ class PenjelajahActivity : AppCompatActivity(), GestureDetector.OnGestureListene
             val moveIntent = Intent(this, BukuActivity::class.java)
             moveIntent.putExtra("SelectedBookID", "ltk-p-"+url)
             moveIntent.putExtra("SelectedBookUrl", ""+url)
+            moveIntent.putExtra("SelectedBookTitle", ""+title)
             moveIntent.putExtra("SelectedBookLastPage", 0)
             this.startActivity(moveIntent)
         } else {

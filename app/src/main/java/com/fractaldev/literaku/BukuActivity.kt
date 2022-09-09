@@ -24,8 +24,6 @@ import com.krishna.fileloader.listener.FileRequestListener
 import com.krishna.fileloader.pojo.FileResponse
 import com.krishna.fileloader.request.FileLoadRequest
 import java.io.File
-import java.util.*
-import kotlin.math.abs
 
 class BukuActivity : AppCompatActivity() {
     private lateinit var activityBinding: ActivityBukuBinding
@@ -33,6 +31,11 @@ class BukuActivity : AppCompatActivity() {
 
     lateinit var mDialog: Dialog
     private var textBantuan: String = ""
+
+    private var selectedBookID: String = ""
+    private var selectedBookUrl: String = ""
+    private var selectedBookTitle: String = ""
+    private var selectedBookLastPage: Int = 0
 
     lateinit var reader: PdfReader
     private var textToRead: List<String> = emptyList()
@@ -92,9 +95,10 @@ class BukuActivity : AppCompatActivity() {
 
         if (intent != null) {
             activityBinding.progressBar.visibility = View.VISIBLE
-            val selectedBookUrl = intent.getStringExtra("SelectedBookUrl")
-            val selectedBookID = intent.getStringExtra("SelectedBookID")
-            val selectedBookLastPage = intent.getIntExtra("SelectedBookLastPage", 0)
+            selectedBookUrl = intent.getStringExtra("SelectedBookUrl").toString()
+            selectedBookID = intent.getStringExtra("SelectedBookID").toString()
+            selectedBookTitle = intent.getStringExtra("SelectedBookTitle").toString()
+            selectedBookLastPage = intent.getIntExtra("SelectedBookLastPage", 0)
 
             if (
                 (!TextUtils.isEmpty(selectedBookUrl) || selectedBookUrl != null) &&
@@ -197,7 +201,7 @@ class BukuActivity : AppCompatActivity() {
                 // Kode
             }.onPageError{page, t ->
                 // Kode Error
-                Log.d("ERROR", "" + t.localizedMessage);
+                Log.d("ERROR", "" + t.localizedMessage)
             }
             .onTap{ false }
             .onRender{nbPages, pageWidth, pageHeight ->
@@ -319,7 +323,18 @@ class BukuActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        saveLastReadPage()
         helpers.textToSpeechEngine.shutdown()
+    }
+
+    private fun saveLastReadPage() {
+        val bookToSave = Buku(
+            title = selectedBookTitle,
+            bookUrl = selectedBookUrl,
+            lastPage = currentPageToRead - 1
+        )
+
+        helpers.setHistory(bookToSave)
     }
 
 
