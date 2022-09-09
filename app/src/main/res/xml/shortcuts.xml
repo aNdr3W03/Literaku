@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <capability android:name="actions.intent.OPEN_APP_FEATURE">
+        <intent>
+            <url-template android:value="https://app.assistant.literaku/open{?feature}" />
+            <parameter
+                android:name="feature"
+                android:key="feature" />
+        </intent>
+    </capability>
+
+    <shortcut
+        android:shortcutId="BUKA"
+        android:shortcutShortLabel="@string/shortcut_short_insert_label">
+        <capability-binding android:key="actions.intent.OPEN_APP_FEATURE">
+            <parameter-binding
+                android:key="feature"
+                android:value="@array/open_app_set" />
+        </capability-binding>
+    </shortcut>
+
+</shortcuts>

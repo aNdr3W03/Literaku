@@ -195,4 +195,11 @@ object Commands {
         "sebutkan ulang daftar bacaan",
         "sebutkan ulang daftar buku",
     )
+
+    const val MAIN = "main"
+    const val HOME = "home"
+    const val EMPTY = ""
+    const val BUKA = "buka"
+    const val JALANKAN = "jalankan"
+    const val SELECT = "select"
 }
