@@ -2,6 +2,7 @@ package com.fractaldev.literaku
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import java.util.*
 
 @Parcelize
 data class Buku(
@@ -11,5 +12,7 @@ data class Buku(
     var author: String = "",
     var year: String = "",
     var bookUrl: String = "",
-    var coverURL: String = ""
+    var coverURL: String = "",
+    var lastPage: Int = 0,
+    var lastRead: String = "00-00-0000",
 ) : Parcelable

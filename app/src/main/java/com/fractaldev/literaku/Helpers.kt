@@ -9,6 +9,11 @@ import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.widget.Toast
 import androidx.preference.PreferenceManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -133,6 +138,105 @@ internal class Helpers(var context: Context) {
         }
     }
 
+    internal fun getAllHistory(): List<Buku>? {
+        var books: List<Buku>? = listOf()
+
+        val jsonString = Utils.ReadIO("literaku-history")
+        val gson = Gson()
+
+        if (jsonString != "") {
+            val listOfMyClassObject: Type = object : TypeToken<ArrayList<Buku?>?>() {}.type
+            books = gson.fromJson(jsonString, listOfMyClassObject)
+        }
+
+        return books
+    }
+    internal fun setHistory(book: Buku) {
+        val listHistory: List<Buku>? = getAllHistory()
+
+        // Get Current Date (For now - only date and not sorted)
+        val dateFormatter: DateFormat = SimpleDateFormat("dd-MM-yyyy")
+        dateFormatter.isLenient = false
+        val today = Date()
+        val dateString: String = dateFormatter.format(today)
+
+        if (listHistory != null) {
+            if (listHistory.isNotEmpty()) {
+                var mutableListHistory: MutableList<Buku> = listHistory.toMutableList()
+                var selectedHistory: Buku? = mutableListHistory.find { it.bookUrl == book.bookUrl }
+                var selectedHistoryIndex: Int = -1
+
+                if (selectedHistory != null) {
+                    // Kalau sudah pernah membaca buku tersebut
+                    selectedHistoryIndex = mutableListHistory.indexOf(selectedHistory)
+
+                    selectedHistory.lastPage = book.lastPage
+                    selectedHistory.lastRead = dateString
+
+//                    mutableListHistory[selectedHistoryIndex] = selectedHistory
+
+                    mutableListHistory.removeAt(selectedHistoryIndex)
+                    mutableListHistory.add(0, selectedHistory)
+                } else {
+                    // Kalau belum pernah membaca buku tersebut
+                    selectedHistoryIndex = mutableListHistory.last().uuid.toInt() + 1
+
+                    selectedHistory = Buku(
+                        uuid = selectedHistoryIndex.toString(),
+                        title = book.title,
+                        bookUrl = book.bookUrl,
+                        lastPage = book.lastPage,
+                        lastRead = dateString
+                    )
+
+                    mutableListHistory.add(0, selectedHistory)
+                }
+
+                // Replace Write
+                val gson = Gson()
+                val jsonString = gson.toJson(mutableListHistory)
+
+                Utils.WriteIO("literaku-history", jsonString)
+            } else {
+                // Kalau belum punya file riwayat sama sekali
+                var mutableListHistory: MutableList<Buku> = mutableListOf()
+
+                val history = Buku(
+                    uuid = "0",
+                    title = book.title,
+                    bookUrl = book.bookUrl,
+                    lastPage = book.lastPage,
+                    lastRead = dateString
+                )
+
+                mutableListHistory.add(history)
+
+                val gson = Gson()
+                val jsonString = gson.toJson(mutableListHistory)
+
+                Utils.WriteIO("literaku-history", jsonString)
+            }
+        } else {
+            // Kalau belum punya file riwayat sama sekali
+            var mutableListHistory: MutableList<Buku> = mutableListOf()
+
+            val history = Buku(
+                uuid = "0",
+                title = book.title,
+                bookUrl = book.bookUrl,
+                lastPage = book.lastPage,
+                lastRead = dateString
+            )
+
+            mutableListHistory.add(history)
+
+            val gson = Gson()
+            val jsonString = gson.toJson(mutableListHistory)
+
+            Utils.WriteIO("literaku-history", jsonString)
+        }
+    }
+
     fun activateVoiceCommand() {
         val language = "id-ID"
         val sttIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -253,7 +357,30 @@ internal class Helpers(var context: Context) {
                     }
 
                     "RiwayatActivity" -> {
-                        // TODO add voice commands for riwayat activity
+                        if (Commands.riwayatReadAgain.contains(command)) {
+                            // Override - because list of books is in activity variable
+                            return true
+                        }
+                        else if (
+                            arrCommand[0] == "pilih" ||
+                            arrCommand[0] == "memilih" ||
+                            arrCommand[0] == "baca" ||
+                            arrCommand[0] == "membaca" ||
+                            arrCommand[0] == "buka" ||
+                            arrCommand[0] == "membuka" ||
+                            // bug
+                            arrCommand[0] == "bukabuku" ||
+                            arrCommand[0] == "bacabuku" ||
+                            arrCommand[0] == "pilihbuku"
+                        ) {
+                            // Override - because list of books is in activity variable
+                            return true
+                        } else {
+                            val textError =
+                                "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
+                            Toast.makeText(activityFromContext, textError, Toast.LENGTH_LONG).show()
+                            speak(textError)
+                        }
                     }
 
                     "KoleksiActivity" -> {

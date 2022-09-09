@@ -1,9 +1,10 @@
 package com.fractaldev.literaku
 
-import android.app.Activity
-import android.content.*
-import android.speech.RecognizerIntent
-import android.widget.Toast
+import android.os.Environment
+import android.util.Log
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.PrintWriter
 import java.util.*
 
 object Utils {
@@ -66,5 +67,40 @@ object Utils {
             return null
         }
         return null
+    }
+
+    fun WriteIO(fileName: String, text: String) {
+        val filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+"/"+fileName+".txt"
+
+        try {
+            val pw = PrintWriter(filePath)
+            pw.println(text)
+            pw.close()
+        } catch (error: FileNotFoundException) {
+            Log.e("error write", ""+error)
+        }
+    }
+
+    fun ReadIO(fileName: String): String {
+        val filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+"/"+fileName+".txt"
+        val file = File(filePath)
+
+        try {
+            val scanner = Scanner(file)
+            val stringBuilder = StringBuilder()
+            var string: String = ""
+
+            while(scanner.hasNextLine()) {
+                string = scanner.nextLine()
+                stringBuilder.append(string+"\n")
+            }
+            scanner.close()
+
+            return stringBuilder.toString()
+        } catch (error: FileNotFoundException) {
+            Log.e("error read", ""+error)
+        }
+
+        return ""
     }
 }
