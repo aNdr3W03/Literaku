@@ -196,10 +196,9 @@ object Commands {
         "sebutkan ulang daftar buku",
     )
 
-    const val MAIN = "main"
-    const val HOME = "home"
-    const val EMPTY = ""
-    const val BUKA = "buka"
-    const val JALANKAN = "jalankan"
-    const val SELECT = "select"
+    const val YES = "yes"
+    const val YA = "ya"
+    const val OKAY = "okay"
+    const val OKE = "oke"
+    const val TOLONG = "tolong"
 }

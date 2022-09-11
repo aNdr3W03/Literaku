@@ -14,7 +14,7 @@
     </capability>
 
     <shortcut
-        android:shortcutId="MAIN"
+        android:shortcutId="YA"
         android:shortcutShortLabel="@string/shortcut_short_insert_label">
         <capability-binding android:key="actions.intent.OPEN_APP_FEATURE">
             <parameter-binding

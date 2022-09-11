@@ -10,18 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.appindexing.Action
 import com.google.firebase.appindexing.FirebaseUserActions
 import com.google.firebase.appindexing.builders.AssistActionBuilder
-import java.util.*
-
-private const val OPEN_APP_FEATURE = "feature"
 
 class SplashScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        val featureRequested = intent.data?.getQueryParameter("feature")
-//        val featureRequested = intent?.extras?.getString(OPEN_APP_FEATURE)
-
-        // check for deeplinks
+        // check for deeplink
         intent?.handleIntent()
 
         //menghilangkan ActionBar
@@ -54,7 +48,7 @@ class SplashScreen : AppCompatActivity() {
             }
             else -> {
                 actionHandled = false
-                Log.w("MainActivity", "DeepLink, path: ${data?.path} not handled")
+                Log.w("SplashScreenActivity", "DeepLink, path: ${data?.path} not handled")
                 Unit
             }
         }
@@ -82,15 +76,12 @@ class SplashScreen : AppCompatActivity() {
 
     private fun startRequestedFeature(featureRequested: String) {
         when (featureRequested.toLowerCase()) {
-            Commands.HOME,
-            Commands.MAIN-> {
-//                runAll = true
-//                onInsertsClicked()
+            Commands.YES,
+            Commands.YA,
+            Commands.OKAY,
+            Commands.OKE,
+            Commands.TOLONG -> {
                 startActivity(Intent(applicationContext, MainActivity::class.java))
-            }
-            Commands.SELECT  -> {
-//                runAll = true
-//                onSelectIndexedClicked()
             }
             else -> Unit
         }
