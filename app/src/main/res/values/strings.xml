@@ -2,6 +2,7 @@
     <string name="app_name">Literaku</string>
 
     <string name="KEY_SPEED_SPEECH">SPEED_SPEECH</string>
+    <string name="KEY_DEV_LTK_ID">DEV_LTK_ID</string>
 
     <string name="bantuanHome0">Anda sedang berada di halaman utama. Gunakan perintah-perintah berikut:</string>
     <string name="bantuanHome1">“Buka Penjelajah” untuk mencari judul bacaan di Internet.</string>

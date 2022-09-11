@@ -23,6 +23,9 @@ import com.krishna.fileloader.FileLoader
 import com.krishna.fileloader.listener.FileRequestListener
 import com.krishna.fileloader.pojo.FileResponse
 import com.krishna.fileloader.request.FileLoadRequest
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import java.io.File
 
 class BukuActivity : AppCompatActivity() {
@@ -327,6 +330,7 @@ class BukuActivity : AppCompatActivity() {
         helpers.textToSpeechEngine.shutdown()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun saveLastReadPage() {
         val bookToSave = Buku(
             title = selectedBookTitle,
@@ -334,7 +338,9 @@ class BukuActivity : AppCompatActivity() {
             lastPage = currentPageToRead - 1
         )
 
-        helpers.setHistory(bookToSave)
+        GlobalScope.async {
+            helpers.setHistory(bookToSave)
+        }
     }
 
 

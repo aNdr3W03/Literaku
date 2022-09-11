@@ -8,6 +8,24 @@ interface ApiService {
     @GET("ebook")
     fun getBooks(): Call<List<KoleksiResponseItem>>
 
+    @GET("history/{uuid}")
+    fun getHistory(
+        @Path("uuid") uuid: String
+    ): Call<RiwayatResponseItem>
+
+    @FormUrlEncoded
+    @POST("history")
+    fun addHistory(
+        @Field("uuid") uuid: String,
+        @Field("log") log: String
+    ): Call<RiwayatResponseItem>
+
+    @FormUrlEncoded
+    @PUT("history/{uuid}")
+    fun editHistory(
+        @Path("uuid") uuid: String,
+        @Field("log") log: String
+    ): Call<RiwayatResponseItem>
 
     // only URL CSE
     @GET("v1?")

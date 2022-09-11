@@ -1,5 +1,6 @@
 package com.fractaldev.literaku
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
 import android.content.Context
@@ -7,10 +8,15 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Handler
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.CompletableDeferred
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.lang.reflect.Type
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -107,7 +113,7 @@ internal class Helpers(var context: Context) {
             }
         }
 
-    internal fun increaseSpeedSpeech() {
+    private fun increaseSpeedSpeech() {
         val value = getSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH))
         var valueInFloat = value?.toFloat()
 
@@ -120,9 +126,11 @@ internal class Helpers(var context: Context) {
             } else {
                 setSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH), "1.7F")
             }
+        } else {
+            setSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH), (1F + 0.35F).toString() + "F")
         }
     }
-    internal fun decreaseSpeedSpeech() {
+    private fun decreaseSpeedSpeech() {
         val value = getSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH))
         val valueInFloat = value?.toFloat()
 
@@ -135,34 +143,72 @@ internal class Helpers(var context: Context) {
             } else {
                 setSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH), "0.3F")
             }
+        } else {
+            setSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH), (1F - 0.35F).toString() + "F")
         }
     }
 
-    internal fun getAllHistory(): List<Buku>? {
+    internal suspend fun getAllHistory(): List<Buku>? {
         var books: List<Buku>? = listOf()
+        val deviceLtkID: String? = getSettingsValue(context.resources.getString(R.string.KEY_DEV_LTK_ID))
 
-        val jsonString = Utils.ReadIO("literaku-history")
-        val gson = Gson()
+        val res = CompletableDeferred<List<Buku>?>()
 
-        if (jsonString != "") {
-            val listOfMyClassObject: Type = object : TypeToken<ArrayList<Buku?>?>() {}.type
-            books = gson.fromJson(jsonString, listOfMyClassObject)
+        if (deviceLtkID != null) {
+            var jsonString = ""
+
+            val client = ApiConfig.getApiService().getHistory(deviceLtkID)
+            client.enqueue(object : Callback<RiwayatResponseItem> {
+                override fun onResponse(
+                    call: Call<RiwayatResponseItem>,
+                    response: Response<RiwayatResponseItem>
+                ) {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+                        if (responseBody != null) jsonString = responseBody.log
+                        if (responseBody != null) jsonString = responseBody.log
+
+                        if (jsonString != "") {
+                            val gson = Gson()
+                            val listOfMyClassObject: Type = object : TypeToken<ArrayList<Buku?>?>() {}.type
+
+                            books = gson.fromJson(jsonString, listOfMyClassObject)
+
+                            res.complete(books)
+                        }
+                    } else {
+                        Log.e("History", "onFailureGET: ${response.message()}")
+                    }
+                }
+                override fun onFailure(call: Call<RiwayatResponseItem>, t: Throwable) {
+                    Log.e("History", "onFailureGET: ${t.message}")
+                }
+            })
+
+            return res.await()
         }
 
         return books
     }
-    internal fun setHistory(book: Buku) {
+    @SuppressLint("SimpleDateFormat")
+    internal suspend fun setHistory(book: Buku) {
+        // Initialize
         val listHistory: List<Buku>? = getAllHistory()
+        var mutableListHistory: MutableList<Buku> = mutableListOf()
+        val todayDateString: String = Utils.getDate("dd-MM-yyyy", Date())   // Current date
 
-        // Get Current Date (For now - only date and not sorted)
-        val dateFormatter: DateFormat = SimpleDateFormat("dd-MM-yyyy")
-        dateFormatter.isLenient = false
-        val today = Date()
-        val dateString: String = dateFormatter.format(today)
+        // Get Device LTK Id / Create new one
+        var deviceLtkID: String? = getSettingsValue(context.resources.getString(R.string.KEY_DEV_LTK_ID))
+        var isDeviceLtkIDExisted = true
+        if (deviceLtkID == null) {
+            deviceLtkID = "${UUID.randomUUID()}-${todayDateString}"
+            setSettingsValue(context.resources.getString(R.string.KEY_DEV_LTK_ID), deviceLtkID)
+            isDeviceLtkIDExisted = false
+        }
 
         if (listHistory != null) {
             if (listHistory.isNotEmpty()) {
-                var mutableListHistory: MutableList<Buku> = listHistory.toMutableList()
+                mutableListHistory = listHistory.toMutableList()
                 var selectedHistory: Buku? = mutableListHistory.find { it.bookUrl == book.bookUrl }
                 var selectedHistoryIndex: Int = -1
 
@@ -171,9 +217,7 @@ internal class Helpers(var context: Context) {
                     selectedHistoryIndex = mutableListHistory.indexOf(selectedHistory)
 
                     selectedHistory.lastPage = book.lastPage
-                    selectedHistory.lastRead = dateString
-
-//                    mutableListHistory[selectedHistoryIndex] = selectedHistory
+                    selectedHistory.lastRead = todayDateString
 
                     mutableListHistory.removeAt(selectedHistoryIndex)
                     mutableListHistory.add(0, selectedHistory)
@@ -186,54 +230,103 @@ internal class Helpers(var context: Context) {
                         title = book.title,
                         bookUrl = book.bookUrl,
                         lastPage = book.lastPage,
-                        lastRead = dateString
+                        lastRead = todayDateString
                     )
 
                     mutableListHistory.add(0, selectedHistory)
                 }
 
-                // Replace Write
                 val gson = Gson()
                 val jsonString = gson.toJson(mutableListHistory)
 
-                Utils.WriteIO("literaku-history", jsonString)
+                // PUT (LTK ID existed in DB)
+                val client = ApiConfig.getApiService().editHistory(
+                    deviceLtkID,
+                    jsonString
+                )
+                client.enqueue(object : Callback<RiwayatResponseItem> {
+                    override fun onResponse(
+                        call: Call<RiwayatResponseItem>,
+                        response: Response<RiwayatResponseItem>
+                    ) {
+                        if (response.isSuccessful) {
+                            Log.d("History", "SUCCESS ADD HISTORY!")
+                        } else {
+                            Log.e("History", "onFailureEDIT1: ${response.message()}")
+                        }
+                    }
+                    override fun onFailure(call: Call<RiwayatResponseItem>, t: Throwable) {
+                        Log.e("History", "onFailureEDIT1: ${t.message}")
+                    }
+                })
             } else {
-                // Kalau belum punya file riwayat sama sekali
-                var mutableListHistory: MutableList<Buku> = mutableListOf()
-
                 val history = Buku(
                     uuid = "0",
                     title = book.title,
                     bookUrl = book.bookUrl,
                     lastPage = book.lastPage,
-                    lastRead = dateString
+                    lastRead = todayDateString
                 )
-
                 mutableListHistory.add(history)
 
                 val gson = Gson()
                 val jsonString = gson.toJson(mutableListHistory)
 
-                Utils.WriteIO("literaku-history", jsonString)
+                // POST (LTK ID not existed in DB)
+                val client = ApiConfig.getApiService().addHistory(
+                    deviceLtkID,
+                    jsonString
+                )
+                client.enqueue(object : Callback<RiwayatResponseItem> {
+                    override fun onResponse(
+                        call: Call<RiwayatResponseItem>,
+                        response: Response<RiwayatResponseItem>
+                    ) {
+                        if (response.isSuccessful) {
+                            Log.d("History", "SUCCESS ADD HISTORY!")
+                        } else {
+                            Log.e("History", "onFailureADD1: ${response.message()}")
+                        }
+                    }
+                    override fun onFailure(call: Call<RiwayatResponseItem>, t: Throwable) {
+                        Log.e("History", "onFailureADD1: ${t.message}")
+                    }
+                })
             }
         } else {
-            // Kalau belum punya file riwayat sama sekali
-            var mutableListHistory: MutableList<Buku> = mutableListOf()
-
+            // Kalau belum punya log riwayat sama sekali
             val history = Buku(
                 uuid = "0",
                 title = book.title,
                 bookUrl = book.bookUrl,
                 lastPage = book.lastPage,
-                lastRead = dateString
+                lastRead = todayDateString
             )
-
             mutableListHistory.add(history)
 
             val gson = Gson()
             val jsonString = gson.toJson(mutableListHistory)
 
-            Utils.WriteIO("literaku-history", jsonString)
+            // POST (LTK ID not existed in DB)
+            val client = ApiConfig.getApiService().addHistory(
+                deviceLtkID,
+                jsonString
+            )
+            client.enqueue(object : Callback<RiwayatResponseItem> {
+                override fun onResponse(
+                    call: Call<RiwayatResponseItem>,
+                    response: Response<RiwayatResponseItem>
+                ) {
+                    if (response.isSuccessful) {
+                        Log.d("History", "SUCCESS ADD HISTORY!")
+                    } else {
+                        Log.e("History", "onFailureADD2: ${response.message()}")
+                    }
+                }
+                override fun onFailure(call: Call<RiwayatResponseItem>, t: Throwable) {
+                    Log.e("History", "onFailureADD2: ${t.message}")
+                }
+            })
         }
     }
 

@@ -6,16 +6,21 @@ import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.fractaldev.literaku.databinding.ActivityRiwayatBinding
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlin.math.abs
 
 class RiwayatActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
@@ -32,6 +37,8 @@ class RiwayatActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private var listBooks = ArrayList<Buku>()
     private var textBantuan: String = ""
     private var textBooks: String = ""
+
+    private lateinit var listRiwayatAdapter: ListRiwayatAdapter
 
     override fun onPause() {
         helpers.textToSpeechEngine.stop()
@@ -52,6 +59,7 @@ class RiwayatActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
         setToolbar()
         getResourceBantuan()
+        initAdapter()
 
         helpers.textToSpeechEngine.setOnUtteranceProgressListener(object: UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {}
@@ -66,7 +74,6 @@ class RiwayatActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             override fun onError(utteranceId: String?) {}
         })
 
-        activityBinding.rvRiwayat.setHasFixedSize(true)
         fetchBooks()
     }
 
@@ -78,6 +85,30 @@ class RiwayatActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         activityBinding.includeRiwayat2.fabBantuan.setOnClickListener {
             openBantuan()
         }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun initAdapter() {
+        activityBinding.rvRiwayat.layoutManager = LinearLayoutManager(this)
+        listRiwayatAdapter = ListRiwayatAdapter(listBooks)
+        activityBinding.rvRiwayat.adapter = listRiwayatAdapter
+
+        listRiwayatAdapter.setOnItemClickCallback(object : ListRiwayatAdapter.OnItemClickCallback {
+            override fun onItemClicked(data: Buku) {
+                showSelectedBuku(data)
+            }
+        })
+
+        activityBinding.rvRiwayat.setOnTouchListener(object: OnSwipeTouchListener(this) {
+            override fun onSwipeLeft() {
+                super.onSwipeLeft()
+                helpers.activateVoiceCommand()
+            }
+            override fun onSwipeRight() {
+                super.onSwipeLeft()
+                helpers.activateVoiceCommand()
+            }
+        })
     }
 
     private fun getResourceBantuan() {
@@ -103,27 +134,36 @@ class RiwayatActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         helpers.speak(textBantuan)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("SimpleDateFormat")
     private fun fetchBooks() {
         showLoading(true)
 
+//        val executor = Executors.newSingleThreadExecutor()
+        val handler = Handler(Looper.getMainLooper())
+
         var books: ArrayList<Buku>? = arrayListOf()
-        var resBooks = helpers.getAllHistory()
+        GlobalScope.async {
+            val resBooks = helpers.getAllHistory()
 
-        if (resBooks != null)
-            if (resBooks.isNotEmpty()) {
-                // TODO sort by date with code (not replace txt)
-                // var formatter = SimpleDateFormat("yyyy-MM-dd")
-                // resBooks.sortedByDescending { it -> formatter.parse(it.lastRead) } }
+            if (resBooks != null)
+                if (resBooks.isNotEmpty()) {
+                    // TODO sort by date with code (not replace txt)
+                    // var formatter = SimpleDateFormat("yyyy-MM-dd")
+                    // resBooks.sortedByDescending { it -> formatter.parse(it.lastRead) } }
 
-                books = resBooks as ArrayList<Buku>
-                setListBooks(books)
-            }
+                    books = resBooks as ArrayList<Buku>
+
+                    handler.post {
+                        setListBooks(books!!)
+                    }
+                }
+        }
 
         showLoading(false)
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("NotifyDataSetChanged")
     private fun setListBooks(books: ArrayList<Buku>) {
         listBooks = ArrayList<Buku>()
         listBooks = books
@@ -135,36 +175,15 @@ class RiwayatActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         textBooks = if (textBooks != "") "Berikut daftar riwayat: $textBooks"
         else "Maaf, bacaan tidak ditemukan."
 
-        activityBinding.rvRiwayat.layoutManager = LinearLayoutManager(this)
-        val listRiwayatAdapter = ListRiwayatAdapter(listBooks)
-        activityBinding.rvRiwayat.adapter = listRiwayatAdapter
+        listRiwayatAdapter.setData(listBooks)
 
         // Bug First Talk
         val textToSpeech = if (afterFirstTalk) textBooks else "anda memasuki halaman riwayat. $textBooks"
         helpers.speak(textToSpeech, TextToSpeech.QUEUE_ADD)
         afterFirstTalk = true
-
-        listRiwayatAdapter.setOnItemClickCallback(object : ListRiwayatAdapter.OnItemClickCallback {
-            override fun onItemClicked(buku: Buku) {
-                showSelectedBuku(buku)
-            }
-        })
-
-        activityBinding.rvRiwayat.setOnTouchListener(object: OnSwipeTouchListener(this) {
-            override fun onSwipeLeft() {
-                super.onSwipeLeft()
-                helpers.activateVoiceCommand()
-            }
-            override fun onSwipeRight() {
-                super.onSwipeLeft()
-                helpers.activateVoiceCommand()
-            }
-        })
     }
 
     private fun showSelectedBuku(buku: Buku) {
-        Log.d("buku", "" + buku);
-
         val moveIntent = Intent(this@RiwayatActivity, BukuActivity::class.java)
         moveIntent.putExtra("SelectedBookID", ""+buku.uuid)
         moveIntent.putExtra("SelectedBookUrl", ""+buku.bookUrl)
@@ -174,8 +193,8 @@ class RiwayatActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     }
 
     private fun showLoading(isLoading: Boolean) {
-//        if (isLoading) activityBinding.progressBar.visibility = View.VISIBLE
-//        else activityBinding.progressBar.visibility = View.GONE
+        if (isLoading) activityBinding.progressBar.visibility = View.VISIBLE
+        else activityBinding.progressBar.visibility = View.GONE
     }
 
     // Gesture Function Override
