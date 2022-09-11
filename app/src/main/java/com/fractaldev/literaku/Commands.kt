@@ -211,4 +211,10 @@ object Commands {
         "sebutkan ulang daftar bacaan",
         "sebutkan ulang daftar buku",
     )
+
+    const val YES = "yes"
+    const val YA = "ya"
+    const val OKAY = "okay"
+    const val OKE = "oke"
+    const val TOLONG = "tolong"
 }

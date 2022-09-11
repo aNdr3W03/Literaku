@@ -15,4 +15,12 @@
         <item>1.35F</item>
         <item>1.7F</item>
     </string-array>
+
+    <string-array name="open_app_set">
+        <item>yes</item>
+        <item>ya</item>
+        <item>okay</item>
+        <item>oke</item>
+        <item>tolong</item>
+    </string-array>
 </resources>
