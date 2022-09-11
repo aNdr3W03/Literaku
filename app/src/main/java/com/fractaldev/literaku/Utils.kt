@@ -1,9 +1,13 @@
 package com.fractaldev.literaku
 
-import android.app.Activity
-import android.content.*
-import android.speech.RecognizerIntent
-import android.widget.Toast
+import android.annotation.SuppressLint
+import android.os.Environment
+import android.util.Log
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.PrintWriter
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 object Utils {
@@ -11,6 +15,34 @@ object Utils {
     // Contoh
     fun dummySum(a: Int, b: Int): Int {
         return a + b
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun getDate(format: String = "\"dd-MM-yyyy\"", date: Date = Date("1/1/2000")): String {
+        val dateFormatter: DateFormat = SimpleDateFormat(format)
+        dateFormatter.isLenient = false
+
+        return dateFormatter.format(date)
+    }
+    @SuppressLint("SimpleDateFormat")
+    fun getDate(format: String = "\"dd-MM-yyyy\"", date: String = "today"): String {
+        val dateLwr = date.lowercase()
+
+        val dateFormatter: DateFormat = SimpleDateFormat(format)
+        dateFormatter.isLenient = false
+
+        var dateToGet = Date("1/1/2000")
+
+        when (dateLwr) {
+            "today" -> {
+                dateToGet = Date()
+            }
+            "yesterday" -> {
+                dateToGet = Date(System.currentTimeMillis() - (1000 * 60 * 60 * 24))
+            }
+        }
+
+        return dateFormatter.format(dateToGet)
     }
 
     fun splitIntoChunks(max: Int, string: String): List<String> = ArrayList<String>(string.length / max + 1).also {
@@ -66,5 +98,40 @@ object Utils {
             return null
         }
         return null
+    }
+
+    fun WriteIO(fileName: String, text: String) {
+        val filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+"/"+fileName+".txt"
+
+        try {
+            val pw = PrintWriter(filePath)
+            pw.println(text)
+            pw.close()
+        } catch (error: FileNotFoundException) {
+            Log.e("error write", ""+error)
+        }
+    }
+
+    fun ReadIO(fileName: String): String {
+        val filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+"/"+fileName+".txt"
+        val file = File(filePath)
+
+        try {
+            val scanner = Scanner(file)
+            val stringBuilder = StringBuilder()
+            var string: String = ""
+
+            while(scanner.hasNextLine()) {
+                string = scanner.nextLine()
+                stringBuilder.append(string+"\n")
+            }
+            scanner.close()
+
+            return stringBuilder.toString()
+        } catch (error: FileNotFoundException) {
+            Log.e("error read", ""+error)
+        }
+
+        return ""
     }
 }

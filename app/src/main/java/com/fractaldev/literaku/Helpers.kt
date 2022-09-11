@@ -1,5 +1,6 @@
 package com.fractaldev.literaku
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
 import android.content.Context
@@ -7,8 +8,18 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Handler
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.widget.Toast
 import androidx.preference.PreferenceManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.CompletableDeferred
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.lang.reflect.Type
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -102,7 +113,7 @@ internal class Helpers(var context: Context) {
             }
         }
 
-    internal fun increaseSpeedSpeech() {
+    private fun increaseSpeedSpeech() {
         val value = getSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH))
         var valueInFloat = value?.toFloat()
 
@@ -115,9 +126,11 @@ internal class Helpers(var context: Context) {
             } else {
                 setSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH), "1.7F")
             }
+        } else {
+            setSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH), (1F + 0.35F).toString() + "F")
         }
     }
-    internal fun decreaseSpeedSpeech() {
+    private fun decreaseSpeedSpeech() {
         val value = getSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH))
         val valueInFloat = value?.toFloat()
 
@@ -130,6 +143,190 @@ internal class Helpers(var context: Context) {
             } else {
                 setSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH), "0.3F")
             }
+        } else {
+            setSettingsValue(context.resources.getString(R.string.KEY_SPEED_SPEECH), (1F - 0.35F).toString() + "F")
+        }
+    }
+
+    internal suspend fun getAllHistory(): List<Buku>? {
+        var books: List<Buku>? = listOf()
+        val deviceLtkID: String? = getSettingsValue(context.resources.getString(R.string.KEY_DEV_LTK_ID))
+
+        val res = CompletableDeferred<List<Buku>?>()
+
+        if (deviceLtkID != null) {
+            var jsonString = ""
+
+            val client = ApiConfig.getApiService().getHistory(deviceLtkID)
+            client.enqueue(object : Callback<RiwayatResponseItem> {
+                override fun onResponse(
+                    call: Call<RiwayatResponseItem>,
+                    response: Response<RiwayatResponseItem>
+                ) {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+                        if (responseBody != null) jsonString = responseBody.log
+                        if (responseBody != null) jsonString = responseBody.log
+
+                        if (jsonString != "") {
+                            val gson = Gson()
+                            val listOfMyClassObject: Type = object : TypeToken<ArrayList<Buku?>?>() {}.type
+
+                            books = gson.fromJson(jsonString, listOfMyClassObject)
+
+                            res.complete(books)
+                        }
+                    } else {
+                        Log.e("History", "onFailureGET: ${response.message()}")
+                    }
+                }
+                override fun onFailure(call: Call<RiwayatResponseItem>, t: Throwable) {
+                    Log.e("History", "onFailureGET: ${t.message}")
+                }
+            })
+
+            return res.await()
+        }
+
+        return books
+    }
+    @SuppressLint("SimpleDateFormat")
+    internal suspend fun setHistory(book: Buku) {
+        // Initialize
+        val listHistory: List<Buku>? = getAllHistory()
+        var mutableListHistory: MutableList<Buku> = mutableListOf()
+        val todayDateString: String = Utils.getDate("dd-MM-yyyy", Date())   // Current date
+
+        // Get Device LTK Id / Create new one
+        var deviceLtkID: String? = getSettingsValue(context.resources.getString(R.string.KEY_DEV_LTK_ID))
+        var isDeviceLtkIDExisted = true
+        if (deviceLtkID == null) {
+            deviceLtkID = "${UUID.randomUUID()}-${todayDateString}"
+            setSettingsValue(context.resources.getString(R.string.KEY_DEV_LTK_ID), deviceLtkID)
+            isDeviceLtkIDExisted = false
+        }
+
+        if (listHistory != null) {
+            if (listHistory.isNotEmpty()) {
+                mutableListHistory = listHistory.toMutableList()
+                var selectedHistory: Buku? = mutableListHistory.find { it.bookUrl == book.bookUrl }
+                var selectedHistoryIndex: Int = -1
+
+                if (selectedHistory != null) {
+                    // Kalau sudah pernah membaca buku tersebut
+                    selectedHistoryIndex = mutableListHistory.indexOf(selectedHistory)
+
+                    selectedHistory.lastPage = book.lastPage
+                    selectedHistory.lastRead = todayDateString
+
+                    mutableListHistory.removeAt(selectedHistoryIndex)
+                    mutableListHistory.add(0, selectedHistory)
+                } else {
+                    // Kalau belum pernah membaca buku tersebut
+                    selectedHistoryIndex = mutableListHistory.last().uuid.toInt() + 1
+
+                    selectedHistory = Buku(
+                        uuid = selectedHistoryIndex.toString(),
+                        title = book.title,
+                        bookUrl = book.bookUrl,
+                        lastPage = book.lastPage,
+                        lastRead = todayDateString
+                    )
+
+                    mutableListHistory.add(0, selectedHistory)
+                }
+
+                val gson = Gson()
+                val jsonString = gson.toJson(mutableListHistory)
+
+                // PUT (LTK ID existed in DB)
+                val client = ApiConfig.getApiService().editHistory(
+                    deviceLtkID,
+                    jsonString
+                )
+                client.enqueue(object : Callback<RiwayatResponseItem> {
+                    override fun onResponse(
+                        call: Call<RiwayatResponseItem>,
+                        response: Response<RiwayatResponseItem>
+                    ) {
+                        if (response.isSuccessful) {
+                            Log.d("History", "SUCCESS ADD HISTORY!")
+                        } else {
+                            Log.e("History", "onFailureEDIT1: ${response.message()}")
+                        }
+                    }
+                    override fun onFailure(call: Call<RiwayatResponseItem>, t: Throwable) {
+                        Log.e("History", "onFailureEDIT1: ${t.message}")
+                    }
+                })
+            } else {
+                val history = Buku(
+                    uuid = "0",
+                    title = book.title,
+                    bookUrl = book.bookUrl,
+                    lastPage = book.lastPage,
+                    lastRead = todayDateString
+                )
+                mutableListHistory.add(history)
+
+                val gson = Gson()
+                val jsonString = gson.toJson(mutableListHistory)
+
+                // POST (LTK ID not existed in DB)
+                val client = ApiConfig.getApiService().addHistory(
+                    deviceLtkID,
+                    jsonString
+                )
+                client.enqueue(object : Callback<RiwayatResponseItem> {
+                    override fun onResponse(
+                        call: Call<RiwayatResponseItem>,
+                        response: Response<RiwayatResponseItem>
+                    ) {
+                        if (response.isSuccessful) {
+                            Log.d("History", "SUCCESS ADD HISTORY!")
+                        } else {
+                            Log.e("History", "onFailureADD1: ${response.message()}")
+                        }
+                    }
+                    override fun onFailure(call: Call<RiwayatResponseItem>, t: Throwable) {
+                        Log.e("History", "onFailureADD1: ${t.message}")
+                    }
+                })
+            }
+        } else {
+            // Kalau belum punya log riwayat sama sekali
+            val history = Buku(
+                uuid = "0",
+                title = book.title,
+                bookUrl = book.bookUrl,
+                lastPage = book.lastPage,
+                lastRead = todayDateString
+            )
+            mutableListHistory.add(history)
+
+            val gson = Gson()
+            val jsonString = gson.toJson(mutableListHistory)
+
+            // POST (LTK ID not existed in DB)
+            val client = ApiConfig.getApiService().addHistory(
+                deviceLtkID,
+                jsonString
+            )
+            client.enqueue(object : Callback<RiwayatResponseItem> {
+                override fun onResponse(
+                    call: Call<RiwayatResponseItem>,
+                    response: Response<RiwayatResponseItem>
+                ) {
+                    if (response.isSuccessful) {
+                        Log.d("History", "SUCCESS ADD HISTORY!")
+                    } else {
+                        Log.e("History", "onFailureADD2: ${response.message()}")
+                    }
+                }
+                override fun onFailure(call: Call<RiwayatResponseItem>, t: Throwable) {
+                    Log.e("History", "onFailureADD2: ${t.message}")
+                }
+            })
         }
     }
 
@@ -253,7 +450,30 @@ internal class Helpers(var context: Context) {
                     }
 
                     "RiwayatActivity" -> {
-                        // TODO add voice commands for riwayat activity
+                        if (Commands.riwayatReadAgain.contains(command)) {
+                            // Override - because list of books is in activity variable
+                            return true
+                        }
+                        else if (
+                            arrCommand[0] == "pilih" ||
+                            arrCommand[0] == "memilih" ||
+                            arrCommand[0] == "baca" ||
+                            arrCommand[0] == "membaca" ||
+                            arrCommand[0] == "buka" ||
+                            arrCommand[0] == "membuka" ||
+                            // bug
+                            arrCommand[0] == "bukabuku" ||
+                            arrCommand[0] == "bacabuku" ||
+                            arrCommand[0] == "pilihbuku"
+                        ) {
+                            // Override - because list of books is in activity variable
+                            return true
+                        } else {
+                            val textError =
+                                "Perintah \"$command\" tidak dikenal. Silahkan coba lagi."
+                            Toast.makeText(activityFromContext, textError, Toast.LENGTH_LONG).show()
+                            speak(textError)
+                        }
                     }
 
                     "KoleksiActivity" -> {

@@ -188,10 +188,26 @@ object Commands {
     internal var koleksiReadAgain = listOf<String>(
         "baca ulang",
         "baca ulang hasil pencarian",
+        "baca ulang daftar koleksi",
         "baca ulang daftar bacaan",
         "baca ulang daftar buku",
         "sebutkan ulang",
         "sebutkan ulang hasil pencarian",
+        "sebutkan ulang daftar koleksi",
+        "sebutkan ulang daftar bacaan",
+        "sebutkan ulang daftar buku",
+    )
+
+    // Riwayat
+    internal var riwayatReadAgain = listOf<String>(
+        "baca ulang",
+        "baca ulang hasil pencarian",
+        "baca ulang daftar riwayat",
+        "baca ulang daftar bacaan",
+        "baca ulang daftar buku",
+        "sebutkan ulang",
+        "sebutkan ulang hasil pencarian",
+        "sebutkan ulang daftar riwayat",
         "sebutkan ulang daftar bacaan",
         "sebutkan ulang daftar buku",
     )
