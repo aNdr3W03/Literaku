@@ -1,10 +1,13 @@
 package com.fractaldev.literaku
 
+import android.annotation.SuppressLint
 import android.os.Environment
 import android.util.Log
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.PrintWriter
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 object Utils {
@@ -12,6 +15,34 @@ object Utils {
     // Contoh
     fun dummySum(a: Int, b: Int): Int {
         return a + b
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun getDate(format: String = "\"dd-MM-yyyy\"", date: Date = Date("1/1/2000")): String {
+        val dateFormatter: DateFormat = SimpleDateFormat(format)
+        dateFormatter.isLenient = false
+
+        return dateFormatter.format(date)
+    }
+    @SuppressLint("SimpleDateFormat")
+    fun getDate(format: String = "\"dd-MM-yyyy\"", date: String = "today"): String {
+        val dateLwr = date.lowercase()
+
+        val dateFormatter: DateFormat = SimpleDateFormat(format)
+        dateFormatter.isLenient = false
+
+        var dateToGet = Date("1/1/2000")
+
+        when (dateLwr) {
+            "today" -> {
+                dateToGet = Date()
+            }
+            "yesterday" -> {
+                dateToGet = Date(System.currentTimeMillis() - (1000 * 60 * 60 * 24))
+            }
+        }
+
+        return dateFormatter.format(dateToGet)
     }
 
     fun splitIntoChunks(max: Int, string: String): List<String> = ArrayList<String>(string.length / max + 1).also {
