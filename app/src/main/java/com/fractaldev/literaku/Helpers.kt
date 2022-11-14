@@ -9,19 +9,14 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Handler
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
+import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.preference.PreferenceManager
-import com.fractaldev.literaku.ml.Model
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CompletableDeferred
-import org.tensorflow.lite.DataType
-import org.tensorflow.lite.Delegate
 import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.Tensor
-import org.tensorflow.lite.support.common.FileUtil
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -29,12 +24,9 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.lang.reflect.Type
 import java.nio.ByteBuffer
-import java.nio.ByteBuffer.allocateDirect
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.charset.Charset
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.CharsetEncoder
 import java.util.*
 
 
@@ -383,98 +375,113 @@ internal class Helpers(var context: Context) {
         return String(bytes, charset!!)
     }
 
-//    private val MODEL_ASSETS_PATH = "model.tflite"
-//    private val INPUT_MAXLEN = 171
-//    private var tfLiteInterpreter : Interpreter? = null
-//
-//    @Throws(IOException::class)
-//    private fun loadModelFile(): MappedByteBuffer {
-//        val assetFileDescriptor = assets.openFd(MODEL_ASSETS_PATH)
-//        val fileInputStream = FileInputStream(assetFileDescriptor.getFileDescriptor())
-//        val fileChannel = fileInputStream.getChannel()
-//        val startoffset = assetFileDescriptor.getStartOffset()
-//        val declaredLength = assetFileDescriptor.getDeclaredLength()
-//        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startoffset, declaredLength)
-//    }
-//
-//    fun classifySequence (sequence : IntArray): FloatArray {
-//        val interpreter = Interpreter(loadModelFile())
-//        val inputs : Array<FloatArray> = arrayOf(sequence.map{it.toFloat()}.toFloatArray() )
-//        val outputs : Array<FloatArray> = arrayOf(floatArrayOf(0.0f, 0.0f))
-//        interpreter.run(inputs, outputs)
-//        return outputs[0]
-//    }
+    private val MODEL_ASSETS_PATH = "model.tflite"
+    private val INPUT_MAXLEN = 50
+    private var tfLiteInterpreter : Interpreter? = null
+
+    fun findIndex(arr: Array<Float>, item: Float?): Int {
+        return arr.indexOf(item)
+    }
 
     fun executeVoiceCommand(command: String = ""): Boolean {
         val activityName = activityFromContext.localClassName
 
-        // >> ---------- NLP MODEL ----------
-
-        // References:
-        // Create TF-Lite Model - https://youtu.be/GeGlGQ80mZg
-        // Deploy TF-Lite Model - https://youtu.be/RJjiCwKAR8w
-        var commandLength = command.length;
-        Log.e("NLP1", "output: ${commandLength}")
-
-        var byteBuffer : ByteBuffer = ByteBuffer.allocateDirect(1 * commandLength)
-        Log.e("NLP2", "output: ${byteBuffer}")
-
-        var cmdByteBuffer = strToByteBuffer(command);
-        byteBuffer.put(cmdByteBuffer)
-
-//        for (i in 0..commandLength) {
-//            Log.e("NLP3_1", "output: ${command[i]}")
-//            Log.e("NLP3_2", "output: ${i}")
-//            byteBuffer.putChar(command[i]) // error?!
-//
-//            Log.e("NLP4_1", "output: ${byteBuffer}")
-//        }
-
-        Log.e("NLP4", "output: ${byteBuffer}")
-        Log.e("NLP4", "output: ${byteBufferToStr(byteBuffer)}")
-
-        val model = Model.newInstance(context)
-
-        Log.e("NLP5", "output: ${model}")
-
-        // Creates inputs for reference.
-        // https://victordibia.com/blog/getting-started-android
-//        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 19), DataType.STRING)
-        val inputFeature0 = TensorBuffer.createDynamic(DataType.STRING)
-        Log.e("NLP6_1", "output: ${inputFeature0}")
-
-        inputFeature0.loadBuffer(byteBuffer)
-        Log.e("NLP6_2", "output: ${inputFeature0}")
-
-        // Runs model inference and gets result.
-        val outputs = model.process(inputFeature0)
-        Log.e("NLP7_1", "output: ${outputs}")
-
-        val outputFeature0 = outputs.outputFeature0AsTensorBuffer.toString()
-        Log.e("NLP7_2", "output: ${outputFeature0}")
-
-        // Releases model resources if no longer used.
-        model.close()
-
-        // ---------- NLP MODEL ---------- <<
-
 //        // >> ---------- NLP MODEL ----------
 //
-//        val classifier = Classifier(context, "word_dict.json", INPUT_MAXLEN)
-//        tfLiteInterpreter = Interpreter(loadModelFile())
+//        // References:
+//        // Create TF-Lite Model - https://youtu.be/GeGlGQ80mZg
+//        // Deploy TF-Lite Model - https://youtu.be/RJjiCwKAR8w
+//        var commandLength = command.length;
+//        Log.e("NLP1", "output: ${commandLength}")
 //
-//        val progressDialog = ProgressDialog(context)
-//        progressDialog.setMessage("Parsing word_dict.json ...")
-//        progressDialog.setCancelable(false)
-//        progressDialog.show()
-//        classifier.processVocab(object: Classifier.VocabCallback {
-//            override fun onVocabProcessed() {
-//                // Processing done, dismiss the progressDialog.
-//                progressDialog.dismiss()
-//            }
-//        })
+//        var byteBuffer : ByteBuffer = ByteBuffer.allocateDirect(1 * commandLength)
+//        Log.e("NLP2", "output: ${byteBuffer}")
+//
+//        var cmdByteBuffer = strToByteBuffer(command);
+//        byteBuffer.put(cmdByteBuffer)
+//
+////        for (i in 0..commandLength) {
+////            Log.e("NLP3_1", "output: ${command[i]}")
+////            Log.e("NLP3_2", "output: ${i}")
+////            byteBuffer.putChar(command[i]) // error?!
+////
+////            Log.e("NLP4_1", "output: ${byteBuffer}")
+////        }
+//
+//        Log.e("NLP4", "output: ${byteBuffer}")
+//        Log.e("NLP4", "output: ${byteBufferToStr(byteBuffer)}")
+//
+//        val model = Model.newInstance(context)
+//
+//        Log.e("NLP5", "output: ${model}")
+//
+//        // Creates inputs for reference.
+//        // https://victordibia.com/blog/getting-started-android
+////        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 19), DataType.STRING)
+//        val inputFeature0 = TensorBuffer.createDynamic(DataType.STRING)
+//        Log.e("NLP6_1", "output: ${inputFeature0}")
+//
+//        inputFeature0.loadBuffer(byteBuffer)
+//        Log.e("NLP6_2", "output: ${inputFeature0}")
+//
+//        // Runs model inference and gets result.
+//        val outputs = model.process(inputFeature0)
+//        Log.e("NLP7_1", "output: ${outputs}")
+//
+//        val outputFeature0 = outputs.outputFeature0AsTensorBuffer.toString()
+//        Log.e("NLP7_2", "output: ${outputFeature0}")
+//
+//        // Releases model resources if no longer used.
+//        model.close()
 //
 //        // ---------- NLP MODEL ---------- <<
+
+        // >> ---------- NLP MODEL ----------
+
+        val classifier = Classifier(context, "word_dict.json", INPUT_MAXLEN)
+        tfLiteInterpreter = Interpreter(loadModelFile())
+
+        Log.e("NLP1", "output: ${tfLiteInterpreter}")
+
+        val progressDialog = ProgressDialog(context)
+        progressDialog.setMessage("Parsing word_dict.json ...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+        classifier.processVocab(object: Classifier.VocabCallback {
+            override fun onVocabProcessed() {
+                // Processing done, dismiss the progressDialog.
+                progressDialog.dismiss()
+            }
+        })
+        Log.e("NLP2", "output: ${progressDialog}")
+
+        val message = command.lowercase().trim()
+        Log.e("NLP3", "output: ${message}")
+        if (!TextUtils.isEmpty(message)) {
+            val tokenizedMessage = classifier.tokenize(message)
+            Log.e("NLP4", "output: ${tokenizedMessage}")
+            val paddedMessage = classifier.padSequence(tokenizedMessage)
+            Log.e("NLP5", "output: ${paddedMessage}")
+
+            val results = classifySequence(paddedMessage)
+            Log.e("NLP6", "output: ${results}")
+//            val maxResult = results.maxOrNull()
+            val commandClass = results.indexOfFirst { it == results.maxOrNull() }
+            Log.e("NLP7", "output: ${commandClass}")
+
+            if (commandClass == 0) {
+                activityFromContext.finish()
+            }
+            else if (commandClass == 1) {
+                val moveIntent = Intent(activityFromContext, MainActivity::class.java)
+                activityFromContext.startActivity(moveIntent)
+            }
+            else if (commandClass == 9) {
+                activityFromContext.finishAffinity()
+            }
+        }
+
+        // ---------- NLP MODEL ---------- <<
 
         // Will be long code for all Commands
         // if want to override in activity code - give "return true"
@@ -483,24 +490,14 @@ internal class Helpers(var context: Context) {
             val arrCommand = reformatCommand.split(" ").toMutableList()
 
             // Common-Commands
-//            if (Commands.back.contains(command)) {
-//                activityFromContext.finish()
-//            }
-            if (outputFeature0 == "back") {
+            if (Commands.back.contains(command)) {
                 activityFromContext.finish()
             }
-//            else if (Commands.backToHome.contains(command)) {
-//                val moveIntent = Intent(activityFromContext, MainActivity::class.java)
-//                activityFromContext.startActivity(moveIntent)
-//            }
-            else if (outputFeature0 == "backToHome") {
+            else if (Commands.backToHome.contains(command)) {
                 val moveIntent = Intent(activityFromContext, MainActivity::class.java)
                 activityFromContext.startActivity(moveIntent)
             }
-//            else if (Commands.exit.contains(command)) {
-//                activityFromContext.finishAffinity()
-//            }
-            else if (outputFeature0 == "exit") {
+            else if (Commands.exit.contains(command)) {
                 activityFromContext.finishAffinity()
             }
             else if (Commands.openBantuan.contains(command)) {
@@ -659,6 +656,27 @@ internal class Helpers(var context: Context) {
         return false
     }
 
+    @Throws(IOException::class)
+    private fun loadModelFile(): MappedByteBuffer {
+        val assetFileDescriptor = context.assets.openFd(MODEL_ASSETS_PATH)
+        val fileInputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
+        val fileChannel = fileInputStream.channel
+        val startOffset = assetFileDescriptor.startOffset
+        val declaredLength = assetFileDescriptor.declaredLength
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+    }
+
+    // Perform inference, given the input sequence
+    private fun classifySequence (sequence : IntArray): FloatArray {
+        // Input shape -> (1 , INPUT_MAXLEN)
+        val inputs : Array<FloatArray> = arrayOf(sequence.map {it.toFloat()}.toFloatArray())
+
+        // Output shape -> (1, 2) (as numClasses = 19)
+        val outputs : Array<FloatArray> = arrayOf(FloatArray(19))
+
+        tfLiteInterpreter?.run(inputs, outputs)
+        return outputs[0]
+    }
 
     // Custom Dirty Function ()
     // ...
